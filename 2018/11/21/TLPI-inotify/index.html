@@ -90,7 +90,7 @@
 <meta property="og:description" content="1234567struct inotify_event &amp;#123;    int		wd;    uint32_t	mask;    uint32_t	cookie;    uint32_t	len;    char	name[];&amp;#125;;">
 <meta property="og:locale" content="zh-tw">
 <meta property="og:image" content="https://m033010041.github.io/2018/11/21/TLPI-inotify/19_1.png">
-<meta property="og:updated_time" content="2018-11-21T04:14:23.647Z">
+<meta property="og:updated_time" content="2018-11-21T04:49:00.534Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="[讀書心得] The Linux Programming Interface chapter 19：檔案監控事件">
 <meta name="twitter:description" content="1234567struct inotify_event &amp;#123;    int		wd;    uint32_t	mask;    uint32_t	cookie;    uint32_t	len;    char	name[];&amp;#125;;">
@@ -340,7 +340,21 @@
 <li>透過 <code>read()</code> 操作讀取 inotify instance，每次成功 <code>read()</code> 後都會回傳一個以上的 <code>inotify_event</code> 結構</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">inotify_event</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span>		wd;</span><br><span class="line">    <span class="keyword">uint32_t</span>	mask;</span><br><span class="line">    <span class="keyword">uint32_t</span>	cookie;</span><br><span class="line">    <span class="keyword">uint32_t</span>	len;</span><br><span class="line">    <span class="keyword">char</span>	name[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p><img src="/2018/11/21/TLPI-inotify/19_1.png" width="100%"></p>
+<h2 id="19-2-inotify-API"><a href="#19-2-inotify-API" class="headerlink" title="19.2 inotify API"></a>19.2 inotify API</h2><h3 id="新增-inotify-instance"><a href="#新增-inotify-instance" class="headerlink" title="新增 inotify instance"></a>新增 inotify instance</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/inotify.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Returns file descriptor on success, or -1 on error */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">inotify_init</span><span class="params">(<span class="keyword">void</span>)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>回傳的 file descriptor 可以對於一個 inotify instance 進行操作</p>
+<h3 id="新增監看項目，回傳監看描述符"><a href="#新增監看項目，回傳監看描述符" class="headerlink" title="新增監看項目，回傳監看描述符"></a>新增監看項目，回傳監看描述符</h3><p>根據上方的步驟，接下來我們會執行<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/inotify.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Returns watch descriptor (wd) on success, or -1 on error */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">inotify_add_watch</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">const</span> <span class="keyword">char</span> *pathname, <span class="keyword">uint32_t</span> mask)</span></span>;</span><br></pre></td></tr></table></figure></p>
+<p>此項目會對 fd 所參考的 inotify instance 新增一個監看項目，每一個監看項目有</p>
+<ul>
+<li>監看路徑</li>
+<li>監看事件集合 (bit mask)<br><img src="/2018/11/21/TLPI-inotify/19_1.png" width="100%"></li>
+<li><strong>若 pathname 為空</strong>，則 <code>inotify_add_watch()</code> 會建立一個新的監看項目並回傳一個非負值的 watch descriptor</li>
+</ul>
+<h3 id="移除監看項目"><a href="#移除監看項目" class="headerlink" title="移除監看項目"></a>移除監看項目</h3><p>若要移除 inotify instance 中的監看項目，會使用系統呼叫：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/inotify.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Returns 0 on success, or -1 on error */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">inotify_rm_watch</span><span class="params">(<span class="keyword">int</span> fd, <span class="keyword">int</span> wd)</span></span>;</span><br></pre></td></tr></table></figure>
+<h2 id="19-3-inotify-Events"><a href="#19-3-inotify-Events" class="headerlink" title="19.3 inotify Events"></a>19.3 inotify Events</h2><p>下圖為 inotify 事件列表，可以透過 <code>inotify_add_watch()</code> 中的 mask 參數識別要監視的 pathname 事件集合</p>
+<ul>
+<li>當</li>
+</ul>
 
       
     </div>
@@ -529,7 +543,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#19-1-概觀"><span class="nav-number">2.</span> <span class="nav-text">19.1 概觀</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#19-1-概觀"><span class="nav-number">2.</span> <span class="nav-text">19.1 概觀</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#19-2-inotify-API"><span class="nav-number">3.</span> <span class="nav-text">19.2 inotify API</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#新增-inotify-instance"><span class="nav-number">3.1.</span> <span class="nav-text">新增 inotify instance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#新增監看項目，回傳監看描述符"><span class="nav-number">3.2.</span> <span class="nav-text">新增監看項目，回傳監看描述符</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#移除監看項目"><span class="nav-number">3.3.</span> <span class="nav-text">移除監看項目</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#19-3-inotify-Events"><span class="nav-number">4.</span> <span class="nav-text">19.3 inotify Events</span></a></li></ol></div>
             
 
           </div>
