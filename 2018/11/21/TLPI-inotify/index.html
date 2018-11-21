@@ -90,7 +90,7 @@
 <meta property="og:description" content="1234567struct inotify_event &amp;#123;    int		wd;    uint32_t	mask;    uint32_t	cookie;    uint32_t	len;    char	name[];&amp;#125;;">
 <meta property="og:locale" content="zh-tw">
 <meta property="og:image" content="https://m033010041.github.io/2018/11/21/TLPI-inotify/19_1.png">
-<meta property="og:updated_time" content="2018-11-21T04:49:00.534Z">
+<meta property="og:updated_time" content="2018-11-21T04:54:21.360Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="[讀書心得] The Linux Programming Interface chapter 19：檔案監控事件">
 <meta name="twitter:description" content="1234567struct inotify_event &amp;#123;    int		wd;    uint32_t	mask;    uint32_t	cookie;    uint32_t	len;    char	name[];&amp;#125;;">
@@ -346,7 +346,7 @@
 <p>此項目會對 fd 所參考的 inotify instance 新增一個監看項目，每一個監看項目有</p>
 <ul>
 <li>監看路徑</li>
-<li>監看事件集合 (bit mask)<br><img src="/2018/11/21/TLPI-inotify/19_1.png" width="100%"></li>
+<li>監看事件集合 (bit mask)<br><img src="/2018/11/21/TLPI-inotify/19_1.png" width="50%"></li>
 <li><strong>若 pathname 為空</strong>，則 <code>inotify_add_watch()</code> 會建立一個新的監看項目並回傳一個非負值的 watch descriptor</li>
 </ul>
 <h3 id="移除監看項目"><a href="#移除監看項目" class="headerlink" title="移除監看項目"></a>移除監看項目</h3><p>若要移除 inotify instance 中的監看項目，會使用系統呼叫：</p>
