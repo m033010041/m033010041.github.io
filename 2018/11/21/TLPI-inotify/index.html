@@ -84,16 +84,16 @@
 <meta name="description" content="1234567struct inotify_event &amp;#123;    int		wd;    uint32_t	mask;    uint32_t	cookie;    uint32_t	len;    char	name[];&amp;#125;;">
 <meta name="keywords" content="The Linux Programming Interface,Linux,讀書心得">
 <meta property="og:type" content="article">
-<meta property="og:title" content="[讀書心得] The Linux Programming Interface chapter 19：檔案監控事件">
+<meta property="og:title" content="[讀書心得] The Linux Programming Interface 第 19 章：檔案監控事件">
 <meta property="og:url" content="https://m033010041.github.io/2018/11/21/TLPI-inotify/index.html">
 <meta property="og:site_name" content="Timmy的軟韌體開發筆記">
 <meta property="og:description" content="1234567struct inotify_event &amp;#123;    int		wd;    uint32_t	mask;    uint32_t	cookie;    uint32_t	len;    char	name[];&amp;#125;;">
 <meta property="og:locale" content="zh-tw">
 <meta property="og:image" content="https://m033010041.github.io/2018/11/21/TLPI-inotify/19_1.png">
 <meta property="og:image" content="https://m033010041.github.io/2018/11/21/TLPI-inotify/19_2.png">
-<meta property="og:updated_time" content="2018-11-21T09:10:38.408Z">
+<meta property="og:updated_time" content="2018-11-21T16:42:57.694Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="[讀書心得] The Linux Programming Interface chapter 19：檔案監控事件">
+<meta name="twitter:title" content="[讀書心得] The Linux Programming Interface 第 19 章：檔案監控事件">
 <meta name="twitter:description" content="1234567struct inotify_event &amp;#123;    int		wd;    uint32_t	mask;    uint32_t	cookie;    uint32_t	len;    char	name[];&amp;#125;;">
 <meta name="twitter:image" content="https://m033010041.github.io/2018/11/21/TLPI-inotify/19_1.png">
 
@@ -131,7 +131,7 @@
 
 
 
-  <title>[讀書心得] The Linux Programming Interface chapter 19：檔案監控事件 | Timmy的軟韌體開發筆記</title>
+  <title>[讀書心得] The Linux Programming Interface 第 19 章：檔案監控事件 | Timmy的軟韌體開發筆記</title>
   
 
 
@@ -209,7 +209,7 @@
         <li class="menu-item menu-item-categories">
           <a href="/categories" rel="section">
             
-              <i class="menu-item-icon fa fa-fw fa-categories"></i> <br>
+              <i class="menu-item-icon fa fa-fw fa-categorie"></i> <br>
             
             分類
           </a>
@@ -275,7 +275,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">[讀書心得] The Linux Programming Interface chapter 19：檔案監控事件</h1>
+          <h1 class="post-title" itemprop="name headline">[讀書心得] The Linux Programming Interface 第 19 章：檔案監控事件</h1>
         
 
         <div class="post-meta">
@@ -347,7 +347,7 @@
 <p>此項目會對 fd 所參考的 inotify instance 新增一個監看項目，每一個監看項目有</p>
 <ul>
 <li>監看路徑</li>
-<li>監看事件集合 (bit mask)<br><img src="/2018/11/21/TLPI-inotify/19_1.png" width="50%"></li>
+<li>監看事件集合 (bit mask)<br><img src="/2018/11/21/TLPI-inotify/19_1.png" width="70%"></li>
 <li><strong>若 pathname 為空</strong>，則 <code>inotify_add_watch()</code> 會建立一個新的監看項目並回傳一個非負值的 watch descriptor</li>
 </ul>
 <h3 id="移除監看項目"><a href="#移除監看項目" class="headerlink" title="移除監看項目"></a>移除監看項目</h3><p>若要移除 inotify instance 中的監看項目，會使用系統呼叫：</p>
@@ -360,7 +360,7 @@
 </ul>
 <h2 id="19-4-Read-inotify-Event"><a href="#19-4-Read-inotify-Event" class="headerlink" title="19.4 Read inotify Event"></a>19.4 Read inotify Event</h2><p>使用 <code>read()</code> 進行讀取事件動作<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> Max_Event	10</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> BUF_LEN		(Max_Event * ((sizeof(struct inotify_event) + NAME_MAX + 1)))</span></span><br><span class="line"><span class="keyword">int</span> numRead;</span><br><span class="line"><span class="keyword">int</span> inotifyFd; <span class="comment">//From inotify_init()</span></span><br><span class="line"><span class="keyword">char</span> buf[BUF_LEN];</span><br><span class="line"></span><br><span class="line"><span class="comment">/* In function */</span></span><br><span class="line">numRead = read(inotifyFd, buf, BUF_LEN);</span><br></pre></td></tr></table></figure></p>
 <p>讀取一次的量為各事件發生時的數目<br>事件發生數目為 <code>numRead / (BUF_LEN/Max_Event)</code></p>
-<p><img src="/2018/11/21/TLPI-inotify/19_2.png" width="50%"><br><code>inotify_add_watch()</code> 的 mask 可以帶入 <code>sys/inotify.h</code> 中的 <code>IN_ALL_EVNET</code> ，定義如下</p>
+<p><img src="/2018/11/21/TLPI-inotify/19_2.png" width="70%"><br><code>inotify_add_watch()</code> 的 mask 可以帶入 <code>sys/inotify.h</code> 中的 <code>IN_ALL_EVENT</code> ，定義如下</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> IN_ALL_EVENTS	(IN_ACCESS | IN_MODIFY | IN_ATTRIB | IN_CLOSE_WRITE | \</span></span><br><span class="line">			 IN_CLOSE_NOWRITE | IN_OPEN | IN_MOVED_FROM | \</span><br><span class="line">			 IN_MOVED_TO | IN_DELETE | IN_CREATE | IN_DELETE_SELF)</span><br></pre></td></tr></table></figure>
 <h3 id="Demo"><a href="#Demo" class="headerlink" title="Demo"></a>Demo</h3><ol>
 <li>add file / directory</li>
@@ -434,8 +434,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2018/11/18/hello-world/" rel="next" title="Hello World">
-                <i class="fa fa-chevron-left"></i> Hello World
+              <a href="/2018/10/03/TLPI-SysLimit/" rel="next" title="[讀書心得] The Linux Programming Interface 第 11 章：系統限制">
+                <i class="fa fa-chevron-left"></i> [讀書心得] The Linux Programming Interface 第 11 章：系統限制
               </a>
             
           </div>
@@ -532,7 +532,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">3</span>
                   <span class="site-state-item-name">標籤</span>
                 </a>
               </div>
