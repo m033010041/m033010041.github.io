@@ -90,7 +90,7 @@
 <meta property="og:description" content="1234567struct inotify_event &amp;#123;    int		wd;    uint32_t	mask;    uint32_t	cookie;    uint32_t	len;    char	name[];&amp;#125;;">
 <meta property="og:locale" content="zh-tw">
 <meta property="og:image" content="https://m033010041.github.io/2018/11/21/TLPI-inotify/19_1.png">
-<meta property="og:updated_time" content="2018-11-21T03:52:44.651Z">
+<meta property="og:updated_time" content="2018-11-21T04:14:23.647Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="[讀書心得] The Linux Programming Interface chapter 19：檔案監控事件">
 <meta name="twitter:description" content="1234567struct inotify_event &amp;#123;    int		wd;    uint32_t	mask;    uint32_t	cookie;    uint32_t	len;    char	name[];&amp;#125;;">
@@ -340,7 +340,7 @@
 <li>透過 <code>read()</code> 操作讀取 inotify instance，每次成功 <code>read()</code> 後都會回傳一個以上的 <code>inotify_event</code> 結構</li>
 </ol>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">inotify_event</span> &#123;</span></span><br><span class="line">    <span class="keyword">int</span>		wd;</span><br><span class="line">    <span class="keyword">uint32_t</span>	mask;</span><br><span class="line">    <span class="keyword">uint32_t</span>	cookie;</span><br><span class="line">    <span class="keyword">uint32_t</span>	len;</span><br><span class="line">    <span class="keyword">char</span>	name[];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p><img src="/2018/11/21/TLPI-inotify/19_1.png" alt=""></p>
+<p><img src="/2018/11/21/TLPI-inotify/19_1.png" width="100%"></p>
 
       
     </div>
