@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-tw">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="The Linux Programming Interface,Linux,讀書心得,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Timmy的軟韌體開發筆記" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="本章節介紹如下  介紹如何使用 exit() 以及 _exit() 結束行程 探討行程在呼叫 exit() 函式時，會使用結束處理常式 exit handler 進行自動管理 探討 fork()、stdio緩衝區，以及exit()之間的互動">
+<meta name="keywords" content="The Linux Programming Interface,Linux,讀書心得">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The Linux Programming Interface : Chapter 25: 終止行程">
+<meta property="og:url" content="https://m033010041.github.io/2019/01/15/TLPI-ExitProcess/index.html">
+<meta property="og:site_name" content="Timmy的軟韌體開發筆記">
+<meta property="og:description" content="本章節介紹如下  介紹如何使用 exit() 以及 _exit() 結束行程 探討行程在呼叫 exit() 函式時，會使用結束處理常式 exit handler 進行自動管理 探討 fork()、stdio緩衝區，以及exit()之間的互動">
+<meta property="og:locale" content="zh-tw">
+<meta property="og:updated_time" content="2019-07-28T14:18:35.398Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="The Linux Programming Interface : Chapter 25: 終止行程">
+<meta name="twitter:description" content="本章節介紹如下  介紹如何使用 exit() 以及 _exit() 結束行程 探討行程在呼叫 exit() 函式時，會使用結束處理常式 exit handler 進行自動管理 探討 fork()、stdio緩衝區，以及exit()之間的互動">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '作者'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://m033010041.github.io/2019/01/15/TLPI-ExitProcess/">
+
+
+
+
+
+  <title>The Linux Programming Interface : Chapter 25: 終止行程 | Timmy的軟韌體開發筆記</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Timmy的軟韌體開發筆記</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">累積經驗，分享經驗</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            標籤
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            歸檔
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://m033010041.github.io/2019/01/15/TLPI-ExitProcess/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Timmy Liu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timmy的軟韌體開發筆記">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">The Linux Programming Interface : Chapter 25: 終止行程</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2019-01-15T16:58:41+08:00">
+                2019-01-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>本章節介紹如下</p>
+<ol>
+<li>介紹如何使用 <code>exit()</code> 以及 <code>_exit()</code> 結束行程</li>
+<li>探討行程在呼叫 <code>exit()</code> 函式時，會使用結束處理常式 <em>exit handler</em> 進行自動管理</li>
+<li>探討 <code>fork()</code>、<code>stdio</code>緩衝區，以及<code>exit()</code>之間的互動</li>
+</ol>
+<a id="more"></a>
+<h2 id="25-1-終止行程：-exit-與-exit"><a href="#25-1-終止行程：-exit-與-exit" class="headerlink" title="25.1 終止行程： exit() 與 _exit()"></a>25.1 終止行程： <code>exit()</code> 與 <code>_exit()</code></h2><h3 id="exit-：終止行程的-system-call"><a href="#exit-：終止行程的-system-call" class="headerlink" title="_exit()：終止行程的 system call"></a><code>_exit()</code>：終止行程的 system call</h3><p>有兩種方式可以終止行程</p>
+<ul>
+<li>異常終止(abnormal)：如 20.1 節所描述，由訊號 signal 觸發，預設訂做是終止行程，可產生核心傾印檔 (core dump file)</li>
+<li>使用 <code>_exit()</code> 系統呼叫將行程正常終止</li>
+</ul>
+<h4 id="function-declare"><a href="#function-declare" class="headerlink" title="function declare:"></a>function declare:</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">void</span> _exit(<span class="keyword">int</span> status);</span><br></pre></td></tr></table></figure>
+<h4 id="status-的討論"><a href="#status-的討論" class="headerlink" title="status 的討論"></a>status 的討論</h4><ul>
+<li>status 參數定義形成的終止狀態(termination status)，父行程可以呼叫 wait() 取得該狀態，雖然型別定義為 <code>int</code>，但實際上服行程只能取得 status 參數的 <strong>後 8 個位元</strong>。</li>
+<li>依據慣例：<ul>
+<li>結束狀態為 0 表示行程順利結束</li>
+<li>非 0 的狀態則表示行程異常終止</li>
+</ul>
+</li>
+<li>目前對於如何解釋非零的狀態並無固定規則，不同的應用程式有自家慣例可以遵循</li>
+<li>書中大多數的程式都是遵循 <code>SUSv3</code> 制訂的兩個常數<ul>
+<li><code>EXIT_SUCCESS(0)</code></li>
+<li><code>EXIT_FAILURE(1)</code></li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p><strong>行程一定可以藉由 <code>_exit()</code> 順利終止 (即呼叫 <code>_exit()</code> 之後不會繼續執行)</strong></p>
+<p>雖然 status 可以透過 0-255 之間的任意值傳遞給父行程，但若將 status 的數值設定大於 128 ，則會在 shell 腳本產生混淆，原因在於若指令是經由訊號終止的，則 shell 會將 <code>$?</code> 變數值設定為 128 加上訊號編號來表示現實情況，當行程用一樣的 status 的數值呼叫 <code>_exit()</code> 時會無法分辨。</p>
+</blockquote>
+<h3 id="exit-：較常使用的函式庫函式-並非-system-call"><a href="#exit-：較常使用的函式庫函式-並非-system-call" class="headerlink" title="exit()：較常使用的函式庫函式 (並非 system call)"></a><code>exit()</code>：較常使用的函式庫函式 (並非 system call)</h3><p>通常不會直接呼叫 <code>_exit()</code>，而是呼叫 <code>exit()</code> 函式庫函式，此函式可在呼叫 <code>_exit()</code> 之前執行一些動作</p>
+<h4 id="function-declare-1"><a href="#function-declare-1" class="headerlink" title="function declare"></a>function declare</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">exit</span><span class="params">(<span class="keyword">int</span> status)</span></span>;</span><br></pre></td></tr></table></figure>
+<p>或是輸入 <code>man exit</code> 取得更詳細的說明</p>
+<h3 id="exit-的執行動作"><a href="#exit-的執行動作" class="headerlink" title="exit() 的執行動作"></a><code>exit()</code> 的執行動作</h3><p>會進行下列動作</p>
+<ul>
+<li>以反向註冊程序 (ch25.3)，呼叫 Exit 處理常式 (<code>atexit()</code>與<code>on_exit()</code>註冊的函式)</li>
+<li>flush stdio 串流緩衝區</li>
+<li>使用 status 提供的值執行 <code>_exit()</code> 系統呼叫</li>
+</ul>
+<h4 id="exit-的討論"><a href="#exit-的討論" class="headerlink" title="exit() 的討論"></a><code>exit()</code> 的討論</h4><ul>
+<li><code>exit()</code> 與 <code>_exit()</code> 不同點：<code>_exit</code> 是 UNIX 特有的，而 <code>exit()</code> 是 libc 的 funciton，簡單說任何 C 語言實作都可以使用 exit()</li>
+<li>在 <code>main()</code> 中執行 <code>return</code> 是對等的，<code>return n</code> 等同於執行<code>exit(n)</code></li>
+<li>有一種情況，呼叫 <code>exit()</code> 會從 <code>main return</code> 會不等價<ul>
+<li>using <code>setvbuf()</code> or <code>setbuf</code> 時使用 <code>main()</code> 的區域變數時 (ch13.2)</li>
+</ul>
+</li>
+</ul>
+<h2 id="25-2-細說行程的終止"><a href="#25-2-細說行程的終止" class="headerlink" title="25.2 細說行程的終止"></a>25.2 細說行程的終止</h2><h3 id="行程終止的過程"><a href="#行程終止的過程" class="headerlink" title="行程終止的過程"></a>行程終止的過程</h3><p>終止過程中，會有下列動作：</p>
+<ul>
+<li>close descriptors (ch18.8)<ul>
+<li>open file descriptors</li>
+<li>directory stream</li>
+<li>message catalog descriptor</li>
+<li>conversion descriptor</li>
+</ul>
+</li>
+<li>close file lock of the process (ch55)</li>
+<li>unattached System V share memory block (ch48.8)</li>
+<li>對於行程已設定 semadj 值的每個 semaphore，會將 semadj 值加到 semaphore 的值 (ch 47.8)</li>
+<li>若為 controlling terminal 的 controlling process，則會將 <code>SIGHUP</code> 訊號傳給每個行程的控制終端機的 foreground process gruop，並移除 termnal 與 session 的關聯 (ch34.6)</li>
+<li>呼叫類似 <code>sem_close()</code> 的方式關閉 semaphore</li>
+<li>呼叫類似 <code>mq_close()</code> 的方式關閉 message queue</li>
+<li>此行程結束會使得此行程孤立狀態，群組中每個行程都會收到 <code>SIGHUP</code> 訊號，並接著收到 <code>SIGCONT</code> 訊號 (ch34.7.4)</li>
+<li>移除使用 <code>mlock()</code> and <code>mlockall()</code> 所建立的 memory lock (ch50.2)</li>
+<li>移除此行程使用 <code>mmap()</code> 建立的記憶體映射</li>
+</ul>
+<h2 id="25-3-結束處理常式-Exit-Handler"><a href="#25-3-結束處理常式-Exit-Handler" class="headerlink" title="25.3 結束處理常式 (Exit Handler)"></a>25.3 結束處理常式 (Exit Handler)</h2><p>應用程式有時要在行程結束時自動執行一些操作，以應用程式的函式庫為例，若在行程的生命週期期間有用到函式庫，則當該行程離開時，需要進行一些自動清理動作。因為函式庫無法掌控行程何時結束，也不能授權主程式在結束之前一定要呼叫一個函式庫指定的清理函式，這樣就不能保證行程結束時會做清理動作。</p>
+<p>因此使用結束處理常式，在 System V 所使用的術語是<strong>程式終止常式 (program termination routine)</strong></p>
+<p>結束處理常式</p>
+<ul>
+<li>通常是由程式設計是提供的函式</li>
+<li>在行程的生命週期內在一些位址上註冊</li>
+<li>在行程<strong>進行正常終止</strong>期間透過 <code>exit()</code> 自動呼叫</li>
+<li>若程式直接呼叫 <code>_exit()</code> 則不會呼叫 Exit Handler</li>
+<li>以信號 (signal) 終止行程並不會呼叫 Exit Handler<ul>
+<li>所以最佳的作法就是盡可能幫行程收到的訊號建立 Exit Handler</li>
+<li>但是依舊無法處理 <code>SIGKILL</code></li>
+<li>因此使用者要避免使用 <code>SIGKILL</code> 並改用 <code>SIGTERM</code></li>
+</ul>
+</li>
+</ul>
+<h3 id="註冊-Exit-Handler"><a href="#註冊-Exit-Handler" class="headerlink" title="註冊 Exit Handler"></a>註冊 Exit Handler</h3><h4 id="function-declare-2"><a href="#function-declare-2" class="headerlink" title="function declare"></a>function declare</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Returns 0 on success, or nonzero on error */</span> </span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">atexit</span><span class="params">(<span class="keyword">void</span> (*func)(<span class="keyword">void</span>))</span></span>;</span><br></pre></td></tr></table></figure>
+<p>由定義中的 function pointer 我們可以知道</p>
+<ul>
+<li>函式不應該傳遞參數</li>
+<li><p>函式不應該有回傳值</p>
+  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* progress */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>atexit()</code> 在出錯時會傳回「非零值」(不一定是 -1)</p>
+</li>
+<li>一個行程可以註冊多個 Exit Handler，甚至可以多次註冊相同的 Exit Handler</li>
+<li>在程式呼叫 <code>exit()</code> 時，呼叫這些函式的順序會與註冊時相反</li>
+<li><p>簡單的例子</p>
+  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* atexit example */</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;      /* puts */</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;     /* atexit */</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">fnExit1</span> <span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">puts</span> (<span class="string">"Exit function 1."</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">fnExit2</span> <span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  <span class="built_in">puts</span> (<span class="string">"Exit function 2."</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">  atexit (fnExit1);</span><br><span class="line">  atexit (fnExit2);</span><br><span class="line">  <span class="built_in">puts</span> (<span class="string">"Main function."</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>  最後的結果為</p>
+  <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ /tmp/<span class="built_in">test</span>   </span><br><span class="line">Main <span class="keyword">function</span>.</span><br><span class="line">Exit <span class="keyword">function</span> 2.</span><br><span class="line">Exit <span class="keyword">function</span> 1.</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>若某個 Exit Handler 呼叫了 <code>_exit()</code> 或是收到了訊號終止，則不會繼續呼叫剩餘的 Exit Handler</p>
+</li>
+<li>若 Exit Handler 自己呼叫 <code>exit()</code> ，則會有不可預期的後果，應避免在 Exit Handler 中使用 <code>exit()</code><ul>
+<li>Linux 會繼續呼叫剩餘的 Exit Handler</li>
+<li>有些系統會進入遞迴，直到 stack overflow 後才終止</li>
+</ul>
+</li>
+<li>SUSv3 要求系統要能讓一個行程<strong>至少可註冊 32 個</strong> Exit Handler，在 Linux 若使用 <code>sysconf(_SC_ATEXIT_MAX);</code> 則會 return <code>2,147,483,647</code> ，換句話說，可能未到達上限之前，記憶體就不足導致問題發生了</li>
+<li>透過 <code>fork()</code> 建立的 child process 會繼承 parent process 的註冊 Exit Handler 複本</li>
+<li><code>atexit()</code> 的兩個限制<ul>
+<li><code>atexit()</code> 無法傳遞狀態給 <code>exit()</code>。有時候狀態是必要的</li>
+<li>無法給 Exit Handler 傳遞參數，這樣表示只能透過全域變數旗標來區分 Exit Handler 較細部的動作</li>
+</ul>
+</li>
+</ul>
+<p>為了擺脫上述的限制，glibc 提供了一個非標準替代方法：<code>on_exit()</code></p>
+<h3 id="on-exit-的討論"><a href="#on-exit-的討論" class="headerlink" title="on_exit() 的討論"></a><code>on_exit()</code> 的討論</h3><h4 id="on-exit-function-declare"><a href="#on-exit-function-declare" class="headerlink" title="on_exit() function declare"></a><code>on_exit()</code> function declare</h4><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="comment">/* Return 0 on success, or nonzero on error */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">on_exit</span><span class="params">(<span class="keyword">void</span> (*func)(<span class="keyword">int</span>, <span class="keyword">void</span>*), <span class="keyword">void</span> *arg)</span></span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>由以上，我們可以知道 <code>on_exit()</code> 所註冊的函式要依循</p>
+  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">func</span><span class="params">(<span class="keyword">int</span> status, <span class="keyword">void</span> *arg)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* Perform cleanup actions */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>void *arg</code> 這個參數可以帶入各種型態，或是使用轉型(cast)，傳入純量</p>
+<ul>
+<li><code>on_exit(onExitFunc, (void *)10);</code></li>
+</ul>
+</li>
+<li>Example  <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (on_exit(onexitFunc, (<span class="keyword">void</span> *) <span class="number">10</span>) != <span class="number">0</span>)</span><br><span class="line">        fatal(<span class="string">"on_exit 1"</span>);</span><br><span class="line">    <span class="keyword">if</span> (atexit(atexitFunc1) != <span class="number">0</span>)</span><br><span class="line">        fatal(<span class="string">"atexit 1"</span>);</span><br><span class="line">    <span class="keyword">if</span> (atexit(atexitFunc2) != <span class="number">0</span>)</span><br><span class="line">        fatal(<span class="string">"atexit 2"</span>);</span><br><span class="line">    <span class="keyword">if</span> (on_exit(onexitFunc, (<span class="keyword">void</span> *) <span class="number">20</span>) != <span class="number">0</span>)</span><br><span class="line">        fatal(<span class="string">"on_exit 2"</span>);</span><br><span class="line">    <span class="built_in">exit</span>(<span class="number">2</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="25-4-fork-stdio-buffer-與-exit-之間的關係"><a href="#25-4-fork-stdio-buffer-與-exit-之間的關係" class="headerlink" title="25.4 fork(), stdio buffer 與 _exit() 之間的關係"></a>25.4 fork(), stdio buffer 與 <code>_exit()</code> 之間的關係</h2><h3 id="程式碼"><a href="#程式碼" class="headerlink" title="程式碼"></a>程式碼</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> *argv[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Hello world\n"</span>);</span><br><span class="line">    write(STDOUT_FILENO, <span class="string">"Ciao\n"</span>, <span class="number">5</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (fork() == <span class="number">-1</span>)</span><br><span class="line">        errExit(<span class="string">"fork"</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Both child and parent continue execution here */</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">exit</span>(EXIT_SUCCESS);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="執行結果"><a href="#執行結果" class="headerlink" title="執行結果"></a>執行結果</h3><p>分成兩部分</p>
+<ul>
+<li>直接透過 terminal 輸出</li>
+<li>導入至文件</li>
+</ul>
+<h3 id="分析為何會輸出兩次："><a href="#分析為何會輸出兩次：" class="headerlink" title="分析為何會輸出兩次："></a>分析為何會輸出兩次：</h3><ul>
+<li><code>printf()</code> 是一個緩衝輸出函式，由 glibc 所提供，為一個標準函式而非系統調用</li>
+<li><code>printf()</code> 對於 FILE I/O 的 FILE stream，需要滿足以下才會從緩衝區輸出至文件<ul>
+<li>緩衝區已滿</li>
+<li>寫入的字元含有 ‘\n’ ‘\r’</li>
+<li>調用 <code>fflush()</code> 清空緩衝區</li>
+<li>調用 <code>scanf()</code> 要從緩衝區讀取內容時</li>
+</ul>
+</li>
+<li>因此 <code>fork()</code> 後就會將緩衝區複製一份</li>
+<li>調用 <code>exit()</code> 的時候 parent/child process 就會各自清空自己的緩衝區</li>
+</ul>
+<p>因此我們可以使用兩種方式處理</p>
+<ol>
+<li>使用 <code>fflush()</code> 或是 <code>setvbuf()</code> 來清空、設定緩衝區<ul>
+<li><a href="http://www.cplusplus.com/reference/cstdio/fflush/" target="_blank" rel="noopener">fflush</a></li>
+<li><a href="https://en.cppreference.com/w/c/io/setvbuf" target="_blank" rel="noopener">setvbuf</a></li>
+</ul>
+</li>
+<li>子行程調用 <code>_exit()</code> 而非 <code>exit()</code><ul>
+<li>設計通用原則：父行程調用 <code>exit()</code>，由父行程產生的子行程則是調用 <code>_exit()</code> 從而確保只有一個進程調用 Exit Handler 並刷新 stdio buffer</li>
+</ul>
+</li>
+</ol>
+<h3 id="分析為何-write-會優先執行"><a href="#分析為何-write-會優先執行" class="headerlink" title="分析為何 write() 會優先執行"></a>分析為何 <code>write()</code> 會優先執行</h3><p>因為 <code>write()</code> 是系統調用，所以會直接輸出到 kerenl space 的緩衝區，而 printf() 是 user space 的緩衝區</p>
+<h2 id="Exercise"><a href="#Exercise" class="headerlink" title="Exercise"></a>Exercise</h2><h3 id="Question"><a href="#Question" class="headerlink" title="Question"></a>Question</h3><p>如果 <code>fork()</code> 出的子行程執行 exit(-1)，父程序會收到哪個數值 (使用 <code>WEXITSTATUS</code> 回傳)</p>
+<h3 id="Answer"><a href="#Answer" class="headerlink" title="Answer"></a>Answer</h3><h4 id="Practice-code"><a href="#Practice-code" class="headerlink" title="Practice code"></a>Practice code</h4><p>我最後練習的程式碼如下：<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;unistd.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/wait.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/types.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> pid = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> status = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> c = <span class="number">0</span>;</span><br><span class="line">        <span class="comment">//atexit(end);</span></span><br><span class="line"></span><br><span class="line">        pid = fork();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (pid == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"Child: This is the CHILD ID = %d\n"</span>, getpid());</span><br><span class="line">                <span class="keyword">while</span> (c &lt; <span class="number">5</span>) &#123;</span><br><span class="line">                        sleep(<span class="number">1</span>);</span><br><span class="line">                        <span class="built_in">printf</span>(<span class="string">"CHLID TIMER: %d\n"</span>,c);</span><br><span class="line">                        c++;</span><br><span class="line">                &#125;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"Child is over..\n"</span>);</span><br><span class="line">                <span class="built_in">exit</span>(<span class="number">-1</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (pid &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"This is parent process, pid = %d\n"</span>, getpid());</span><br><span class="line">                sleep(<span class="number">3</span>);</span><br><span class="line">                wait(&amp;status);</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"Parent: status = %d\n"</span>, status);</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"Parent: WEXITSTATUS(status) = %d\n"</span>, WEXITSTATUS(status));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="執行結果-1"><a href="#執行結果-1" class="headerlink" title="執行結果"></a>執行結果</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">weintek-timmy@weintek-timmy:~/Timmy/presentation/tlpi_chapter25$ !gcc</span><br><span class="line">gcc -o <span class="built_in">test</span> test.c</span><br><span class="line">weintek-timmy@weintek-timmy:~/Timmy/presentation/tlpi_chapter25$ ./<span class="built_in">test</span></span><br><span class="line">This is parent process, pid = 12279</span><br><span class="line">Child: This is the CHILD ID = 12280</span><br><span class="line">Child is over..</span><br><span class="line">Parent: status = 65280</span><br><span class="line">Parent: WEXITSTATUS(status) = 255</span><br></pre></td></tr></table></figure>
+<h4 id="結果分析"><a href="#結果分析" class="headerlink" title="結果分析"></a>結果分析</h4><p>我們先來看 <a href="http://man7.org/linux/man-pages/man2/waitpid.2.html" target="_blank" rel="noopener"><code>wait()</code></a> 到底做了些什麼？</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">WEXITSTATUS(wstatus);</span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment"> *  returns the exit status of the child.  This consists of the</span></span><br><span class="line"><span class="comment"> *  least significant 8 bits of the status argument that the child</span></span><br><span class="line"><span class="comment"> *  specified in a call to exit(3) or _exit(2) or as the argument</span></span><br><span class="line"><span class="comment"> *  for a return statement in main().  This macro should be</span></span><br><span class="line"><span class="comment"> *  employed only if WIFEXITED returned true.</span></span><br><span class="line"><span class="comment"> */</span></span><br></pre></td></tr></table></figure>
+<p>很合理，只看最後 8 bit，也就是 255，所以 <code>WEXITSTATUS(status)</code></p>
+<h4 id="status-的討論-1"><a href="#status-的討論-1" class="headerlink" title="status 的討論"></a>status 的討論</h4><p>其實討論 status 用此方式，似乎不是很合理，畢竟在子行程調用 <code>exit(-1)</code> 有點奇怪，不過我試了一下，Linux 似乎會將 <code>exit()</code> 的值左移 8 bit，也就是 status * 256</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">int</span> pid = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">int</span> status = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">        pid = fork();</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (pid == <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"Child: This is the CHILD ID = %d\n"</span>, getpid());</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"Child is over..\n"</span>);</span><br><span class="line">                <span class="built_in">exit</span>(<span class="number">1</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> <span class="keyword">if</span> (pid &gt; <span class="number">0</span>) &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"This is parent process, pid = %d\n"</span>, getpid());</span><br><span class="line">                wait(&amp;status);</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"Parent: status = %d\n"</span>, status);</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"Parent: WEXITSTATUS(status) = %d\n"</span>, WEXITSTATUS(status));</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>結果如下</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">weintek-timmy@weintek-timmy:~/Timmy/presentation/tlpi_chapter25$ ./<span class="built_in">test</span></span><br><span class="line">This is parent process, pid = 13677</span><br><span class="line">Child: This is the CHILD ID = 13678</span><br><span class="line">Child is over..</span><br><span class="line">Parent: status = 256</span><br><span class="line">Parent: WEXITSTATUS(status) = 1</span><br></pre></td></tr></table></figure>
+<p>這部分我還要找些資料才會知道，不過可以確認的是，必須使用 <code>WEXITSTATUS()</code> 才能正確收到 child process 真正 return 的值</p>
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><ul>
+<li><a href="https://stackoverflow.com/questions/13328332/waitpid-wrong-usage" target="_blank" rel="noopener">https://stackoverflow.com/questions/13328332/waitpid-wrong-usage</a></li>
+<li><a href="https://stackoverflow.com/questions/26435730/forked-child-exits-with-1-but-wexitstatus-gets-255" target="_blank" rel="noopener">https://stackoverflow.com/questions/26435730/forked-child-exits-with-1-but-wexitstatus-gets-255</a></li>
+<li><a href="https://stackoverflow.com/questions/52731842/how-to-get-the-return-value-of-child-process-to-its-parent-which-was-created-usi" target="_blank" rel="noopener">https://stackoverflow.com/questions/52731842/how-to-get-the-return-value-of-child-process-to-its-parent-which-was-created-usi</a></li>
+<li><a href="https://en.cppreference.com/w/c/io/setvbuf" target="_blank" rel="noopener">https://en.cppreference.com/w/c/io/setvbuf</a></li>
+<li><a href="http://www.cplusplus.com/reference/cstdlib/atexit/" target="_blank" rel="noopener">http://www.cplusplus.com/reference/cstdlib/atexit/</a></li>
+<li><a href="http://man7.org/linux/man-pages/man2/waitpid.2.html" target="_blank" rel="noopener">http://man7.org/linux/man-pages/man2/waitpid.2.html</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/The-Linux-Programming-Interface/" rel="tag"># The Linux Programming Interface</a>
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/讀書心得/" rel="tag"># 讀書心得</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/12/06/build-arm-net-snmp-guide/" rel="next" title="[Embedded linux] SNMP 移植完整教程">
+                <i class="fa fa-chevron-left"></i> [Embedded linux] SNMP 移植完整教程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/20/udhcpc-option/" rel="prev" title="[udhcpc] busybox udhcpc 功能討論">
+                [udhcpc] busybox udhcpc 功能討論 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Timmy Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">標籤</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/m033010041" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:timmy_post@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="www.linkedin.com/in/Gugeegee" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.facebook.com/profile.php?id=100001387579922" target="_blank" title="Facebook">
+                      
+                        <i class="fa fa-fw fa-facebook"></i>Facebook</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#25-1-終止行程：-exit-與-exit"><span class="nav-number">1.</span> <span class="nav-text">25.1 終止行程： exit() 與 _exit()</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#exit-：終止行程的-system-call"><span class="nav-number">1.1.</span> <span class="nav-text">_exit()：終止行程的 system call</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#function-declare"><span class="nav-number">1.1.1.</span> <span class="nav-text">function declare:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#status-的討論"><span class="nav-number">1.1.2.</span> <span class="nav-text">status 的討論</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#exit-：較常使用的函式庫函式-並非-system-call"><span class="nav-number">1.2.</span> <span class="nav-text">exit()：較常使用的函式庫函式 (並非 system call)</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#function-declare-1"><span class="nav-number">1.2.1.</span> <span class="nav-text">function declare</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#exit-的執行動作"><span class="nav-number">1.3.</span> <span class="nav-text">exit() 的執行動作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#exit-的討論"><span class="nav-number">1.3.1.</span> <span class="nav-text">exit() 的討論</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#25-2-細說行程的終止"><span class="nav-number">2.</span> <span class="nav-text">25.2 細說行程的終止</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#行程終止的過程"><span class="nav-number">2.1.</span> <span class="nav-text">行程終止的過程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#25-3-結束處理常式-Exit-Handler"><span class="nav-number">3.</span> <span class="nav-text">25.3 結束處理常式 (Exit Handler)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#註冊-Exit-Handler"><span class="nav-number">3.1.</span> <span class="nav-text">註冊 Exit Handler</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#function-declare-2"><span class="nav-number">3.1.1.</span> <span class="nav-text">function declare</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#on-exit-的討論"><span class="nav-number">3.2.</span> <span class="nav-text">on_exit() 的討論</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#on-exit-function-declare"><span class="nav-number">3.2.1.</span> <span class="nav-text">on_exit() function declare</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#25-4-fork-stdio-buffer-與-exit-之間的關係"><span class="nav-number">4.</span> <span class="nav-text">25.4 fork(), stdio buffer 與 _exit() 之間的關係</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#程式碼"><span class="nav-number">4.1.</span> <span class="nav-text">程式碼</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#執行結果"><span class="nav-number">4.2.</span> <span class="nav-text">執行結果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分析為何會輸出兩次："><span class="nav-number">4.3.</span> <span class="nav-text">分析為何會輸出兩次：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#分析為何-write-會優先執行"><span class="nav-number">4.4.</span> <span class="nav-text">分析為何 write() 會優先執行</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Exercise"><span class="nav-number">5.</span> <span class="nav-text">Exercise</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Question"><span class="nav-number">5.1.</span> <span class="nav-text">Question</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Answer"><span class="nav-number">5.2.</span> <span class="nav-text">Answer</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Practice-code"><span class="nav-number">5.2.1.</span> <span class="nav-text">Practice code</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#執行結果-1"><span class="nav-number">5.2.2.</span> <span class="nav-text">執行結果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#結果分析"><span class="nav-number">5.2.3.</span> <span class="nav-text">結果分析</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#status-的討論-1"><span class="nav-number">5.2.4.</span> <span class="nav-text">status 的討論</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Reference"><span class="nav-number">6.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timmy Liu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 強力驅動</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主題 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

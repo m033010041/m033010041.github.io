@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-tw">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="busybox,udhcpc,embedded linux,network,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Timmy的軟韌體開發筆記" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="其實 busybox udhcpc 可以實現許多很實用的功能，例如  定時更新 IP 與租約 背景執行 (與 linux 背警執行的 &amp;amp; 不同，要看其他 option 來做變化) 立即取得租約 可以控制 udhcpc 本身 process 的運作">
+<meta name="keywords" content="busybox,udhcpc,embedded linux,network">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[udhcpc] busybox udhcpc 功能討論">
+<meta property="og:url" content="https://m033010041.github.io/2019/04/20/udhcpc-option/index.html">
+<meta property="og:site_name" content="Timmy的軟韌體開發筆記">
+<meta property="og:description" content="其實 busybox udhcpc 可以實現許多很實用的功能，例如  定時更新 IP 與租約 背景執行 (與 linux 背警執行的 &amp;amp; 不同，要看其他 option 來做變化) 立即取得租約 可以控制 udhcpc 本身 process 的運作">
+<meta property="og:locale" content="zh-tw">
+<meta property="og:updated_time" content="2019-07-27T12:40:20.564Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[udhcpc] busybox udhcpc 功能討論">
+<meta name="twitter:description" content="其實 busybox udhcpc 可以實現許多很實用的功能，例如  定時更新 IP 與租約 背景執行 (與 linux 背警執行的 &amp;amp; 不同，要看其他 option 來做變化) 立即取得租約 可以控制 udhcpc 本身 process 的運作">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '作者'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://m033010041.github.io/2019/04/20/udhcpc-option/">
+
+
+
+
+
+  <title>[udhcpc] busybox udhcpc 功能討論 | Timmy的軟韌體開發筆記</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Timmy的軟韌體開發筆記</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">累積經驗，分享經驗</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            標籤
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            歸檔
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://m033010041.github.io/2019/04/20/udhcpc-option/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Timmy Liu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timmy的軟韌體開發筆記">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">[udhcpc] busybox udhcpc 功能討論</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2019-04-20T20:59:18+08:00">
+                2019-04-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>其實 busybox udhcpc 可以實現許多很實用的功能，例如</p>
+<ul>
+<li>定時更新 IP 與租約</li>
+<li>背景執行 (與 linux 背警執行的 &amp; 不同，要看其他 option 來做變化)</li>
+<li>立即取得租約</li>
+<li>可以控制 udhcpc 本身 process 的運作<a id="more"></a>
+</li>
+</ul>
+<p>我們可以先看 busybox 的 udhcpc help options<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">[root@cMT-3E8D /root]<span class="comment"># udhcpc --help</span></span><br><span class="line">BusyBox v1.20.2 (2014-05-26 18:14:32 CST) multi-call binary.</span><br><span class="line"></span><br><span class="line">Usage: udhcpc [-fbnqvoCRB] [-i IFACE] [-r IP] [-s PROG] [-p PIDFILE]</span><br><span class="line">    [-V VENDOR] [-x OPT:VAL]... [-O OPT]...</span><br><span class="line"></span><br><span class="line">    -i,--interface IFACE    Interface to use (default eth0)</span><br><span class="line">    -p,--pidfile FILE    Create pidfile</span><br><span class="line">    -s,--script PROG    Run PROG at DHCP events (default /usr/share/udhcpc/default.script)</span><br><span class="line">    -B,--broadcast        Request broadcast replies</span><br><span class="line">    -t,--retries N        Send up to N discover packets</span><br><span class="line">    -T,--timeout N        Pause between packets (default 3 seconds)</span><br><span class="line">    -A,--tryagain N        Wait N seconds after failure (default 20)</span><br><span class="line">    -f,--foreground        Run <span class="keyword">in</span> foreground</span><br><span class="line">    -b,--background        Background <span class="keyword">if</span> lease is not obtained</span><br><span class="line">    -n,--now        Exit <span class="keyword">if</span> lease is not obtained</span><br><span class="line">    -q,--quit        Exit after obtaining lease</span><br><span class="line">    -R,--release        Release IP on <span class="built_in">exit</span></span><br><span class="line">    -S,--syslog        Log to syslog too</span><br><span class="line">    -a,--arping        Use arping to validate offered address</span><br><span class="line">    -O,--request-option OPT    Request option OPT from server (cumulative)</span><br><span class="line">    -o,--no-default-options    Don<span class="string">'t request any options (unless -O is given)</span></span><br><span class="line"><span class="string">    -r,--request IP        Request this IP address</span></span><br><span class="line"><span class="string">    -x OPT:VAL        Include option OPT in sent packets (cumulative)</span></span><br><span class="line"><span class="string">                Examples of string, numeric, and hex byte opts:</span></span><br><span class="line"><span class="string">                -x hostname:bbox - option 12</span></span><br><span class="line"><span class="string">                -x lease:3600 - option 51 (lease time)</span></span><br><span class="line"><span class="string">                -x 0x3d:0100BEEFC0FFEE - option 61 (client id)</span></span><br><span class="line"><span class="string">    -F,--fqdn NAME        Ask server to update DNS mapping for NAME</span></span><br><span class="line"><span class="string">    -V,--vendorclass VENDOR    Vendor identifier (default '</span>udhcp VERSION<span class="string">')</span></span><br><span class="line"><span class="string">    -C,--clientid-none    Don'</span>t send MAC as client identifier</span><br><span class="line">    -v            Verbose</span><br><span class="line">Signals:</span><br><span class="line">    USR1    Renew lease</span><br><span class="line">    USR2    Release lease</span><br></pre></td></tr></table></figure></p>
+<p>我們針對這幾個選項做討論好了，其他的可以去看 udhcpc 的 man page 獲得更多的訊息與使用方式</p>
+<ul>
+<li><code>-i IFACE</code>: 選定 udhcpc 所要使用的網路介面<ul>
+<li>usage: <code>udhcpc -i wlan0</code> (假設是使用 wifi 介面)</li>
+<li>可以針對不同的網路介面去取得 dhcp server 所配給的 ip address</li>
+</ul>
+</li>
+<li><code>-p PIDFILE</code>: 當 udhcpc 執行後有保留其 process 的時候，建立 udhcpc pid file<ul>
+<li>usage: <code>udhcpc -i eth0 -p /var/run/udhcpc-eth0.pid</code></li>
+<li>可以保存其 pid file 並透過 pid 相關的控制指令去控制其 pid file，例如 kill 指令 (kill 不單單是可以殺掉 process 也可以傳輸 signal)</li>
+</ul>
+</li>
+<li><code>-s SCRIPT_PATH</code>: 可以使用特定的 udhcpc 腳本<ul>
+<li>usage: <code>udhcpc -i eth0 -s /etc/udhcpc_special.script</code></li>
+<li>因為有時候會針對不同的介面去跑不同的腳本，而腳本的討論會在這個文章中做說明(等更新時連結會附上)</li>
+<li>預設的腳本路徑是 <code>/usr/share/udhcpc/default.script</code> 當沒有這個檔案應該沒辦法跑 udhcpc，所以這個腳本一定要有，不帶參數的時候就是跑這個腳本</li>
+</ul>
+</li>
+<li><code>-t RETRY_NUM</code>: 指定取得 dhcp reply 的次數<ul>
+<li>usage: <code>udhcpc -i eth0 -t 3</code></li>
+<li><code>RETRY_NUM</code> 表示當 udhcpc 要不到 dhcp reply 的時候還會執行的次數 (實際上是 <code>RETRY_NUM-1</code>)</li>
+<li>當成功要到 ip address 就不會再發送後續次數的封包</li>
+</ul>
+</li>
+<li><code>-T TIMEOUT</code>: 設定 dhcp reply 回覆的等待時間<ul>
+<li>預設是三秒</li>
+<li>如果三秒等待不到 reply packet 就會進入後續動作 (若有 <code>-q</code> 就離開，有 <code>-t 3</code> 就會繼續發 request 封包)</li>
+</ul>
+</li>
+<li><code>-A AFTER_N_SECS</code>: 若 dhcp 失敗後，等待 <code>AFTER_N_SECS</code> 後再執行一次相同動作<ul>
+<li>usage: <code>udhcpc -i eth0 -A 60</code>，表示失敗後等待 60 s 再次執行 <code>udhcpc -i eth0 -A 60</code></li>
+<li><code>-A</code> 通常要配 <code>-b</code> 或是 <code>-p</code>，在背景執行時失敗後會重新執行 udhcpc</li>
+<li>這個跟 <code>-t RETRY_NUM</code> 不一樣，-A 是當程式真的認為已經進入了 dhcp failure 的狀態的時候會等待一段時間後再執行 udhcpc，而 -t 次數都結束且都沒有要到 ip address 的時候才會認定是 dhcp failure</li>
+<li>預設是 20 s</li>
+</ul>
+</li>
+<li><code>-f/-b</code>: process 執行的位置 foreground / background<ul>
+<li>usage: <code>udhcpc -i eth0 -f</code> / <code>udhcpc -i eth0 -b</code></li>
+<li><code>-b</code> 比較特殊，<code>-b</code> 是當封包沒有要到的時候會自動進入背景，此時 process 不會消失，可以使用 <code>kill()</code> 傳送 signal 給 udhcpc process</li>
+</ul>
+</li>
+<li><code>-n</code>: 當沒有要到 ip address 的時候離開 process<ul>
+<li>usage: <code>udhcpc -i eth0 -n</code></li>
+<li><code>-b</code> 與 <code>-n</code> 不要同時存在，一個是沒要到會進入背景執行，另一個是沒要到會刪掉 process，如果兩個同時存在時，我試過 <code>-n</code> 的 priority 比較高，<code>-b</code> 沒有意義</li>
+</ul>
+</li>
+<li><code>-q</code>: 當要到 ip address 的時候離開<ul>
+<li>usage: <code>uchcpc -i eth0 -q</code> </li>
+<li>這個在一些特殊的地方會用到，通常當你要到 ip address 之後不會想要針對 process 進行處置的時候可以用此 option</li>
+<li>若你只是想要從網域中發送 dhcp 封包並且獲得一個合理的回覆，但並不會想要對此封包做任何處置用這個指令也很適合</li>
+</ul>
+</li>
+<li><code>-R</code>: 當 process 被殺掉的時候執行 release request<ul>
+<li>usage: <code>udhcpc -i eth0 -R</code> </li>
+<li>這個算是蠻重要的一環，但也相對要小心使用，因為這樣才可以保證網域內的網路分配是可以循環使用的，不然通常沒有加上 <code>-R</code> 的 udhcpc 離開時，dhcp server 並不知道，導致此 ip address 一直被這個 mac 所佔用，要等到 86400 秒租約過期後才會釋出</li>
+</ul>
+</li>
+</ul>
+<h2 id="關於-udhcpc-signal-的討論-SIGUSR1-SIGUSR2"><a href="#關於-udhcpc-signal-的討論-SIGUSR1-SIGUSR2" class="headerlink" title="關於 udhcpc signal 的討論 (SIGUSR1/SIGUSR2)"></a>關於 udhcpc signal 的討論 (<code>SIGUSR1/SIGUSR2</code>)</h2><ul>
+<li>關於狀態機的討論，請看這個文章(等更新後會附上)</li>
+<li><code>SIGUSR1 (10)</code>: 目的是強制執行 renew 狀態，狀態機會跳到 <code>RENEW_REQUESTED</code>，但是等同於 <code>RENEW</code> 狀態，之後自動進入 <code>REBINDING</code> 狀態並且發送 <code>DHCPREQUEST</code> packet<br>之後會運行 <code>timeout &gt;&gt; 1</code> 直到 <code>timeout &lt;=0</code> 為止，總共花了約 50s 才發生 timeout 回到 INIT 狀態並且 script run deconfig</li>
+<li><code>SIGYSR2 (12)</code>: 目的是強制 release 現在的 lease，並將狀態強制進到 <code>RELEASED</code> 狀態，此狀態在 udhcpc source code並沒有任何功能，就是一個 idle status，但是如果收到 <code>SIGUSR1</code> 的訊號時，就會立即將狀態回到 <code>INIT</code> 狀態</li>
+</ul>
+<p>由以上的討論，如果要將 udhcpc 設成 daemon 的話，最好的方式就是執行<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">pid = check_pid(<span class="string">"/var/run/udhcpc-eth0.pid"</span>);</span><br><span class="line">kill(SIGUSR2, pid); <span class="comment">// set udhcpc to release state</span></span><br><span class="line">kill(SIGUSR1, pid); <span class="comment">// set udhcpc to init state and get lease again</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="實際-udhcpc-指令的使用方式"><a href="#實際-udhcpc-指令的使用方式" class="headerlink" title="實際 udhcpc 指令的使用方式"></a>實際 udhcpc 指令的使用方式</h2><p>我們直接用 bash 的指令直接說明，以下是我在公司工作時被要求需要達到的網路功能</p>
+<ol>
+<li>希望網路要到的時候會產生一個 pid file: <code>/var/run/udhcpc-&lt;IFACE&gt;.pid</code></li>
+<li>希望可以發送三次 udhcpc 的 requeset 封包 (實驗過後覺得發送三次最適當)</li>
+<li>希望沒有要到的時候可以每 60 秒嘗試再要一次 ip address</li>
+</ol>
+<p>就以上三點，我們可以直接使用剛剛提到的 option 組合來實現：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">udhcpc -i &lt;IFACE&gt; -p /var/run/udhcpc-eth0.pid -b -t 3 -A 60</span><br></pre></td></tr></table></figure></p>
+<p>理論上要不到 ip，會進入背景，並且 hang 60 sec 之後才會再丟 3 次 discover 封包，若可以要到的話，就可以直接要到 IP，daemon 還是會存在，若要不到的話，會重新計數 retry 時間，然後 60s 後自動要到 ip address</p>
+<p>這篇結束後，我們將會討論 udhcpc 所使用的 script 的結構與設計方式</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/busybox/" rel="tag"># busybox</a>
+          
+            <a href="/tags/udhcpc/" rel="tag"># udhcpc</a>
+          
+            <a href="/tags/embedded-linux/" rel="tag"># embedded linux</a>
+          
+            <a href="/tags/network/" rel="tag"># network</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/01/15/TLPI-ExitProcess/" rel="next" title="The Linux Programming Interface : Chapter 25: 終止行程">
+                <i class="fa fa-chevron-left"></i> The Linux Programming Interface : Chapter 25: 終止行程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/05/20/stm32-env-macos/" rel="prev" title="於 macOS Mojave 上建置 STM32 開發環境">
+                於 macOS Mojave 上建置 STM32 開發環境 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Timmy Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">標籤</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/m033010041" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:timmy_post@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="www.linkedin.com/in/Gugeegee" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.facebook.com/profile.php?id=100001387579922" target="_blank" title="Facebook">
+                      
+                        <i class="fa fa-fw fa-facebook"></i>Facebook</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#關於-udhcpc-signal-的討論-SIGUSR1-SIGUSR2"><span class="nav-number">1.</span> <span class="nav-text">關於 udhcpc signal 的討論 (SIGUSR1/SIGUSR2)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#實際-udhcpc-指令的使用方式"><span class="nav-number">2.</span> <span class="nav-text">實際 udhcpc 指令的使用方式</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timmy Liu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 強力驅動</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主題 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

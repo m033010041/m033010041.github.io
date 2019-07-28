@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-tw">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Linux,SNMP,Embedded linux,i.MX6,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Timmy的軟韌體開發筆記" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="前言目前我的想法是  先找 snmp packages 並嘗試透過 cross-compiler build snmp packages 使用 pc build 一版 x86 版本的 snmpd 學習 PC 如何透過 snmp client 來驗證 snmpd  本文目前只有詳細介紹第1點">
+<meta name="keywords" content="Linux,SNMP,Embedded linux,i.MX6">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[Embedded linux] SNMP 移植完整教程">
+<meta property="og:url" content="https://m033010041.github.io/2018/12/06/build-arm-net-snmp-guide/index.html">
+<meta property="og:site_name" content="Timmy的軟韌體開發筆記">
+<meta property="og:description" content="前言目前我的想法是  先找 snmp packages 並嘗試透過 cross-compiler build snmp packages 使用 pc build 一版 x86 版本的 snmpd 學習 PC 如何透過 snmp client 來驗證 snmpd  本文目前只有詳細介紹第1點">
+<meta property="og:locale" content="zh-tw">
+<meta property="og:updated_time" content="2018-12-05T16:53:08.556Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[Embedded linux] SNMP 移植完整教程">
+<meta name="twitter:description" content="前言目前我的想法是  先找 snmp packages 並嘗試透過 cross-compiler build snmp packages 使用 pc build 一版 x86 版本的 snmpd 學習 PC 如何透過 snmp client 來驗證 snmpd  本文目前只有詳細介紹第1點">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '作者'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://m033010041.github.io/2018/12/06/build-arm-net-snmp-guide/">
+
+
+
+
+
+  <title>[Embedded linux] SNMP 移植完整教程 | Timmy的軟韌體開發筆記</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Timmy的軟韌體開發筆記</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">累積經驗，分享經驗</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            標籤
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            歸檔
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://m033010041.github.io/2018/12/06/build-arm-net-snmp-guide/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Timmy Liu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timmy的軟韌體開發筆記">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">[Embedded linux] SNMP 移植完整教程</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2018-12-06T00:45:25+08:00">
+                2018-12-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>目前我的想法是</p>
+<ol>
+<li>先找 snmp packages 並嘗試透過 cross-compiler build snmp packages</li>
+<li>使用 pc build 一版 x86 版本的 snmpd</li>
+<li>學習 PC 如何透過 snmp client 來驗證 snmpd</li>
+</ol>
+<p>本文目前只有詳細介紹第1點</p>
+<a id="more"></a>
+<h2 id="snmp-for-arm-linux-platform"><a href="#snmp-for-arm-linux-platform" class="headerlink" title="snmp for arm-linux platform"></a>snmp for arm-linux platform</h2><h3 id="準備工作"><a href="#準備工作" class="headerlink" title="準備工作"></a>準備工作</h3><ol>
+<li>下載 net-snmp 5.8 source code package</li>
+<li>透過 cross-compiler build snmpd binary</li>
+<li>學習 snmpd.conf 的設定</li>
+<li>移植到 arm-linux 進行測試</li>
+<li>遇到問題與除錯方法</li>
+<li>使用 snmp client 來驗證正確</li>
+</ol>
+<h3 id="1-下載-net-snmp-5-8-source-code-package"><a href="#1-下載-net-snmp-5-8-source-code-package" class="headerlink" title="1. 下載 net-snmp 5.8 source code package"></a>1. 下載 net-snmp 5.8 source code package</h3><ul>
+<li>到下載頁面：<a href="http://www.net-snmp.org/download.html" target="_blank" rel="noopener">http://www.net-snmp.org/download.html</a></li>
+<li>目前版本到達 <code>v5.8</code>，也可下載 Long Term Support (LTS) 版本 <code>v5.7.3</code></li>
+<li>我們這次使用 <code>v5.8</code> 作為目標版本</li>
+</ul>
+<h3 id="2-透過-cross-compiler-build-snmpd-binary"><a href="#2-透過-cross-compiler-build-snmpd-binary" class="headerlink" title="2. 透過 cross-compiler build snmpd binary"></a>2. 透過 cross-compiler build snmpd binary</h3><p>目前我參考的 porting 網站有許多，覺得<a href="https://www.cnblogs.com/quliuliu2013/p/7520241.html" target="_blank" rel="noopener">這個最好</a></p>
+<h4 id="configure-的-option"><a href="#configure-的-option" class="headerlink" title="configure 的 option"></a>configure 的 option</h4><ul>
+<li>如下表所示 (其他的要去 manpage 查詢)</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>options</th>
+<th>details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--host=arm-linux</code></td>
+<td>運行平台</td>
+</tr>
+<tr>
+<td><code>--target=arm-linux</code></td>
+<td>目標平台</td>
+</tr>
+<tr>
+<td><code>--build=i686-linux</code></td>
+<td>編譯平台</td>
+</tr>
+<tr>
+<td><code>--with-cc=arm-linux-gcc</code></td>
+<td>cross-compiler tool</td>
+</tr>
+<tr>
+<td><code>--with-ar=arm-linux-ar</code></td>
+<td>打包工具</td>
+</tr>
+<tr>
+<td><code>--prefix=/usr/local/net-snmp</code></td>
+<td>安裝目錄</td>
+</tr>
+<tr>
+<td><code>--disable-shared</code></td>
+<td>不編譯共享庫</td>
+</tr>
+<tr>
+<td><code>--disable-scripts</code></td>
+<td>不要安裝 mib2c 等版本</td>
+</tr>
+<tr>
+<td><code>--with-endianness=little</code></td>
+<td>using little endian</td>
+</tr>
+<tr>
+<td><code>--enable-mini-agent</code></td>
+<td>最小化構建 agent</td>
+</tr>
+<tr>
+<td><code>--disable-deprecated</code></td>
+<td>不編譯放棄使用的功能</td>
+</tr>
+<tr>
+<td><code>--without-logfile</code></td>
+<td>指定 snmpd 不輸出 log 文件 (可以使用 <code>--with-logfile</code> 指定默認 log 檔案的位置)</td>
+</tr>
+<tr>
+<td><code>--disable-minimalist</code></td>
+<td>刪除所有非基本的代碼功能</td>
+</tr>
+<tr>
+<td><code>--enable-debugging</code></td>
+<td>打開除錯訊息</td>
+</tr>
+<tr>
+<td><code>--disable-testing-code</code></td>
+<td>不使用測試代碼 (某些代碼不被使用)</td>
+</tr>
+<tr>
+<td><code>--with-openssl=/opt/hardhat</code></td>
+<td>openssl library 路徑 (支援加密)</td>
+</tr>
+<tr>
+<td><code>--disable-ipv6</code></td>
+<td>不使用 ipv6</td>
+</tr>
+<tr>
+<td><code>--disable-manuals</code></td>
+<td>不安裝 manpage 說明頁</td>
+</tr>
+<tr>
+<td><code>--disable-ucd-snmp-compatibility</code></td>
+<td>不需要相容 ucd-snmp</td>
+</tr>
+<tr>
+<td><code>--disable-snmptrapd-subagent</code></td>
+<td>不需要支援 snmptrapd 的子代理</td>
+</tr>
+<tr>
+<td><code>--disable-embedded-perl</code></td>
+<td>在 snmp agent 和 snmptrapd 禁用 embedded perl 預設啟用</td>
+</tr>
+<tr>
+<td><code>--disable-applications</code></td>
+<td>是否關閉 snmpget 等功能，根據自己的需求選擇</td>
+</tr>
+<tr>
+<td><code>--with-default-snmp-version=&quot;3&quot;</code></td>
+<td>指定預設 snmp protocal version</td>
+</tr>
+<tr>
+<td><code>--enable-as-needed</code></td>
+<td>僅鏈接需要的library</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>根據以上，我組態設定為<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=<span class="regexp">/var/</span>net-snmp --build=i686-linux --host=arm-linux --<span class="keyword">with</span>-<span class="keyword">default</span>-snmp-version=<span class="string">"2"</span> --<span class="keyword">with</span>-sys-contact=<span class="string">"timmyliu@weintek.com"</span> --<span class="keyword">with</span>-sys-location=<span class="string">"location"</span> --<span class="keyword">with</span>-logfile=<span class="string">"/var/log/snmpd.log"</span> --<span class="keyword">with</span>-copy-persistent-files=<span class="string">"no"</span> --without-opaque-special-types --without-rpm --without-perl-modules --disable-manuals --disable-ipv6 --disable-ucd-snmp-compatibility --disable-embedded-perl --disable-snmptrapd-subagent --disable-scripts -enable-mfd-rewrites --enable-shared=no --enable-mini-agent --<span class="keyword">with</span>-cc=arm-none-linux-gnueabi-gcc --<span class="keyword">with</span>-ar=arm-none-linux-gnueabi-ar</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>看不清所有設定的話，可以寫成：<br><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=<span class="regexp">/var/</span>net-snmp \</span><br><span class="line">--build=i686-linux --host=arm-linux \</span><br><span class="line">--<span class="keyword">with</span>-<span class="keyword">default</span>-snmp-version=<span class="string">"2"</span> --<span class="keyword">with</span>-sys-contact=<span class="string">"timmyliu@weintek.com"</span> \</span><br><span class="line">--<span class="keyword">with</span>-sys-location=<span class="string">"location"</span> --<span class="keyword">with</span>-logfile=<span class="string">"/var/log/snmpd.log"</span> \</span><br><span class="line">--<span class="keyword">with</span>-copy-persistent-files=<span class="string">"no"</span> --without-opaque-special-types \</span><br><span class="line">--without-rpm --without-perl-modules \</span><br><span class="line">--disable-manuals --disable-ipv6 --disable-ucd-snmp-compatibility \</span><br><span class="line">--disable-embedded-perl --disable-snmptrapd-subagent --disable-scripts \</span><br><span class="line">-enable-mfd-rewrites --enable-shared=no --enable-mini-agent \</span><br><span class="line">--<span class="keyword">with</span>-cc=arm-none-linux-gnueabi-gcc \</span><br><span class="line">--<span class="keyword">with</span>-ar=arm-none-linux-gnueabi-ar</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>configure summary<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">---------------------------------------------------------</span><br><span class="line">            Net-SNMP configuration summary:</span><br><span class="line">---------------------------------------------------------</span><br><span class="line"></span><br><span class="line">  SNMP Versions Supported:    <span class="number">1</span> <span class="number">2</span>c <span class="number">3</span></span><br><span class="line">  Building <span class="keyword">for</span>:               linux</span><br><span class="line">  Net-SNMP Version:           <span class="number">5.8</span></span><br><span class="line">  Network transport support:  Callback Unix Alias TCP UDP IPv4Base SocketBase TCPBase UDPIPv4Base UDPBase</span><br><span class="line">  SNMPv3 Security Modules:     usm</span><br><span class="line">  Agent MIB code:            <span class="function"><span class="params">default_modules</span> =&gt;</span>  snmpv3mibs mibII/snmp_mib mibII/system_mib mibII/sysORTable mibII/vacm_vars mibII/vacm_conf</span><br><span class="line">  MYSQL Trap Logging:         unavailable</span><br><span class="line">  Embedded Perl support:      disabled</span><br><span class="line">  SNMP Perl modules:          disabled</span><br><span class="line">  SNMP Python modules:        disabled</span><br><span class="line">  Crypto support <span class="keyword">from</span>:        internal</span><br><span class="line">  Authentication support:     MD5 SHA1</span><br><span class="line">  Encryption support:         DES AES</span><br><span class="line">  Local DNSSEC validation:    disabled</span><br><span class="line"></span><br><span class="line">---------------------------------------------------------</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="之後就執行-make"><a href="#之後就執行-make" class="headerlink" title="之後就執行 make"></a>之後就執行 <code>make</code></h4><ul>
+<li>如果之前有 build 過的話就執行 <code>make clean &amp;&amp; make</code></li>
+<li><p>build 成功的話會看到下面兩行</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chmod a+x net-snmp-config</span><br><span class="line">touch net-snmp-config-x</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>透過 <code>ll -h agent/snmpd</code> 看一下 size</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">weintek-timmy@weintek-timmy:~/Timmy/GitHub/net-snmp-5.8$ ll -h agent/snmpd</span><br><span class="line">-rwxrwxr-x 1 weintek-timmy weintek-timmy 2.3M 12月  4 15:58 agent/snmpd*</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="使用strip進行程式瘦身"><a href="#使用strip進行程式瘦身" class="headerlink" title="使用strip進行程式瘦身"></a>使用strip進行程式瘦身</h4><p>看你是 soft-float 還是 hard-float compiler，以這個例子我們是使用 <code>arm-none-linux-gnueabi-</code>來編譯，那我們就使用 <code>arm-none-linux-gnueabi-strip</code>來瘦身<br><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">weintek-timmy<span class="meta">@weintek</span>-timmy:~<span class="regexp">/Timmy/</span>GitHub/net-snmp<span class="number">-5.8</span>$ arm-none-linux-gnueabi-strip agent/snmpd</span><br><span class="line">weintek-timmy<span class="meta">@weintek</span>-timmy:~<span class="regexp">/Timmy/</span>GitHub/net-snmp<span class="number">-5.8</span>$ ll -h agent/snmpd</span><br><span class="line">-rwxrwxr-x <span class="number">1</span> weintek-timmy weintek-timmy <span class="number">696</span>K <span class="number">12</span>月  <span class="number">4</span> <span class="number">16</span>:<span class="number">04</span> agent/snmpd*</span><br><span class="line">weintek-timmy<span class="meta">@weintek</span>-timmy:~<span class="regexp">/Timmy/</span>GitHub/net-snmp<span class="number">-5.8</span>$</span><br></pre></td></tr></table></figure></p>
+<p>從 2.3M 瘦身成 696K</p>
+<h3 id="3-學習-snmpd-conf-的設定"><a href="#3-學習-snmpd-conf-的設定" class="headerlink" title="3. 學習 snmpd.conf 的設定"></a>3. 學習 snmpd.conf 的設定</h3><p>具體配置方式可以參考<a href="http://www.cnblogs.com/oloroso/p/4595123.html" target="_blank" rel="noopener">這裡</a>的第五部份，然而我會從那個網站中將設定的方式紀錄於此</p>
+<ul>
+<li><p>複製 EXAMPLE.conf 到原本的資料夾中，用此製作一份新的 config file</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp EXAMPLE.conf snmpd.conf</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>開啟外網 access 權限</p>
+</li>
+</ul>
+<p>原本預設的 snmpd.conf 通常都是使用 localhost (127.0.0.1)，如果要使用外網訪問的話，就要修改<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">#    AGENT BEHAVIOUR</span><br><span class="line">#</span><br><span class="line">#  Listen for connections from the local system only</span><br><span class="line">#  agentAddress  udp:127.0.0.1:161</span><br><span class="line">#  Listen for connections on all interfaces (both IPv4 *and* IPv6)</span><br><span class="line">agentAddress udp:161,udp6:[::1]:161</span><br></pre></td></tr></table></figure></p>
+<p>如果把 <code>#agentAddress upd:127.0.0.1:161</code> 解開的話就會變成使用 localhost listen</p>
+<ul>
+<li>設定共同體名稱 (community)</li>
+</ul>
+<p>我們使用 EXAMPLE.conf 中的 com2sec/group/view/access 的說明，大約是預設文件的第 65 行</p>
+<p>首先我們定義一個首<strong>共同體名稱</strong>(community)，這裡我們使用 public，以及可以訪問這個 public 的用戶名(sec name)，這裡是 notConfigUser。public 相當於用戶 notConfigUser 的密碼</p>
+<p>在 snmpd.conf 檔案中加入以下 (可使用 “#” 來加入註解)<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#        sec.name        source    community</span><br><span class="line">com2sec  notConfigUser   default   public</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>定義 gpoup 名稱 (組名)</li>
+</ul>
+<p>之後我們定義一個組名 (groupName) 這裡是 notConfigGroup，以及 group 的安全級別(也就是 snmp version) 並把 notConfigUser 這個用戶加到這個 group 中。</p>
+<p>在 snmpd.conf 檔案中加入以下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">#       groupName       securityModel    securityName</span><br><span class="line">group   notConfigGroup      v1           notConfigUser</span><br><span class="line">group   notConfigGroup      v2c          notConfigUser</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>定義可試圖 (view) 名稱</li>
+</ul>
+<p>我們加入 all 這個名稱，可視範圍為 .1，在 snmpd.conf 檔案中加入以下<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#       name     incl/excl     subtree      mask(optional)</span><br><span class="line">view     all      included        .1</span><br></pre></td></tr></table></figure></p>
+<p>並且註解<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">view   systemonly  included   .1.3.6.1.2.1.1</span><br><span class="line">view   systemonly  included   .1.3.6.1.2.1.25.1</span><br></pre></td></tr></table></figure></p>
+<ul>
+<li>定義可試圖操作</li>
+</ul>
+<p>最後定義 notConfigUser 這個組在 all 這個可視圖中內可做的操作，我們在此定義了 notConfigGroup 內的成員可以對 .1 這個可視範圍做 <strong>「唯讀」</strong> 操作。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#          group        context sec.model  sec.level  prefix read   write  notif</span><br><span class="line">access  notConfigGroup    &quot;&quot;      any       noauth    exact  all    none   none</span><br></pre></td></tr></table></figure></p>
+<p>接下來設置系統資訊</p>
+<ul>
+<li><p>設置區域</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysLocation    &quot;New Taipei City, Taiwan&quot;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>設置聯絡人</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sysContact     Me &lt;me@example.org&gt;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>設置監控主機</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>設置讀寫帳戶<br><code></code>conf=</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">### 4. 移植到 arm-linux 進行測試</span><br><span class="line"></span><br><span class="line">* 先從 agent 目錄下 copy 出 snmpd 執行檔</span><br><span class="line">* 在 embedded-linux 目標機器上創建 snmpd.conf 的設定文件 (我習慣在PC上面先建置好再透過 `scp` 拷貝到裝置內)</span><br><span class="line">```sh=</span><br><span class="line">scp agent/snmpd snmp.conf root@192.168.2.98:/root/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>之後執行 <code>./snmpd -c snmpd.conf  –f –Le –d</code></strong> (大部份都要除錯，很少第一次成功)</p>
+</li>
+</ul>
+<h3 id="5-除錯與問題處理"><a href="#5-除錯與問題處理" class="headerlink" title="5. 除錯與問題處理"></a>5. 除錯與問題處理</h3><h4 id="遇到-cannot-file-module-與-snmpd-conf-unknown-token-的問題"><a href="#遇到-cannot-file-module-與-snmpd-conf-unknown-token-的問題" class="headerlink" title="遇到 cannot file module 與 snmpd.conf: unknown token 的問題"></a>遇到 cannot file module 與 snmpd.conf: unknown token 的問題</h4><p>執行時遇到問題<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">[root@cMT-15C2 /root]<span class="comment"># ./snmpd -c snmpd.conf -f -Le -d</span></span><br><span class="line">Created directory: /var/net-snmp</span><br><span class="line">Created directory: /var/net-snmp/mib_indexes</span><br><span class="line">MIB search path: /root/.snmp/mibs:/var/net-snmp/share/snmp/mibs</span><br><span class="line">Cannot find module (SNMPv2-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (IF-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (IP-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (TCP-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (UDP-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (SNMP-VIEW-BASED-ACM-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (SNMP-COMMUNITY-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (SNMP-FRAMEWORK-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (SNMP-MPD-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (SNMP-USER-BASED-SM-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">snmpd.conf: line 96: Warning: Unknown token: proc.</span><br><span class="line">snmpd.conf: line 98: Warning: Unknown token: proc.</span><br><span class="line">snmpd.conf: line 100: Warning: Unknown token: proc.</span><br><span class="line">snmpd.conf: line 110: Warning: Unknown token: disk.</span><br><span class="line">snmpd.conf: line 111: Warning: Unknown token: disk.</span><br><span class="line">snmpd.conf: line 112: Warning: Unknown token: includeAllDisks.</span><br><span class="line">snmpd.conf: line 122: Warning: Unknown token: load.</span><br><span class="line">snmpd.conf: line 149: Warning: Unknown token: iquerySecName.</span><br><span class="line">snmpd.conf: line 152: Warning: Unknown token: defaultMonitors.</span><br><span class="line">snmpd.conf: line 154: Warning: Unknown token: linkUpDownNotifications.</span><br><span class="line">snmpd.conf: line 166: Warning: Unknown token: extend.</span><br><span class="line">snmpd.conf: line 167: Warning: Unknown token: extend-sh.</span><br><span class="line">snmpd.conf: line 199: Warning: Unknown token: master.</span><br><span class="line">Error opening specified endpoint <span class="string">"udp:161"</span></span><br><span class="line">Server Exiting with code 1</span><br></pre></td></tr></table></figure></p>
+<p>這個問題分兩部份</p>
+<ul>
+<li>Cannot find module…</li>
+<li>snmpd.conf: line …: Warning: Unknown token: …</li>
+</ul>
+<h5 id="處理-snmpd-conf-line-Warning-Unknown-token-的問題"><a href="#處理-snmpd-conf-line-Warning-Unknown-token-的問題" class="headerlink" title="處理 snmpd.conf: line ...: Warning: Unknown token: ... 的問題"></a>處理 <code>snmpd.conf: line ...: Warning: Unknown token: ...</code> 的問題</h5><p>如果仔細去看他的 warning 的話，其實很簡單，他就是認不出這些設定檔，原因是因為這些設定可能因為執行 ./configure 的時候 disable 掉了，反正不設他就會使用預設的參數，所以我們就全部註解掉</p>
+<ol>
+<li>將 proc 的設定註解</li>
+<li>將 disk / includeAllDisks 註解</li>
+<li>將 load 註解</li>
+<li>將 iquerySecName / defaultMonitors / linkUpDownNotifications 註解</li>
+<li>將 extend / extend-sh / master 註解</li>
+<li>將 trapsink 註解</li>
+</ol>
+<p>傳到裝置上再執行一次</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">[root@cMT-15C2 /root]<span class="comment"># ./snmpd -c snmpd.conf -f -Le -d</span></span><br><span class="line">MIB search path: /root/.snmp/mibs:/var/net-snmp/share/snmp/mibs</span><br><span class="line">Cannot find module (SNMPv2-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (IF-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (IP-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (TCP-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (UDP-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (SNMP-VIEW-BASED-ACM-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (SNMP-COMMUNITY-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (SNMP-FRAMEWORK-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (SNMP-MPD-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Cannot find module (SNMP-USER-BASED-SM-MIB): At line 0 <span class="keyword">in</span> (none)</span><br><span class="line">Error opening specified endpoint <span class="string">"udp:161"</span></span><br><span class="line">Server Exiting with code 1</span><br></pre></td></tr></table></figure>
+<h5 id="處理-cannot-find-module-問題"><a href="#處理-cannot-find-module-問題" class="headerlink" title="處理 cannot find module 問題"></a>處理 cannot find module 問題</h5><p>問題點從 message 就大概可以知道 MIB module 需要匯入，而路徑是 <code>/var/net-snmp/share/snmp/mibs</code></p>
+<p>所以我們就先建立新的資料夾<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p /var/net-snmp/share/snmp/mibs</span><br></pre></td></tr></table></figure></p>
+<p>然後進入 PC source code 的 mibs 將裏面的 module 撈出來給裝置<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~net-snmp-5.8/mibs</span><br><span class="line"></span><br><span class="line">scp * root@192.168.2.98:/var/net-snmp/share/snmp/mibs/</span><br></pre></td></tr></table></figure></p>
+<p>再執行一次<br><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[root@cMT-15C2 /root]<span class="comment"># ./snmpd -c snmpd.conf -f -Le -d</span></span><br><span class="line">Error opening specified endpoint <span class="string">"udp:161"</span></span><br><span class="line">Server Exiting with code 1</span><br></pre></td></tr></table></figure></p>
+<p>還有最後一個問題</p>
+<h5 id="處理-Error-opening-specified-endpoint-“udp-161”"><a href="#處理-Error-opening-specified-endpoint-“udp-161”" class="headerlink" title="處理 Error opening specified endpoint “udp:161”"></a>處理 Error opening specified endpoint “udp:161”</h5><p>因為我們之前使用 <code>./configure</code> 的時候加入了一個參數 <code>--disable-ipv6</code> ，所以我們必須將 udp的 ipv6設定移掉<br>修改 <code>snmpd.conf</code> ，將 <code>udp6:[::1]:161</code> 移掉</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"># orig: agentAddress udp:161,udp6:[::1]:161</span><br><span class="line">agentAddress udp:161</span><br></pre></td></tr></table></figure>
+<p>還有其他可能性，但大部份都是 conf 檔要放對位置</p>
+<h3 id="6-使用-snmp-client-來驗證正確"><a href="#6-使用-snmp-client-來驗證正確" class="headerlink" title="6. 使用 snmp client 來驗證正確"></a>6. 使用 snmp client 來驗證正確</h3><p>若使用指令 <code>./snmpd -c snmpd.conf -f -Le -d</code> 啟動之後出現 <code>NET-SNMP version 5.8</code> 表示已經運行，這時候我們使用 <code>snmpwalk</code> 試試看</p>
+<ul>
+<li><p>PC 端：</p>
+<ul>
+<li><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">snmpget -v 2c -c public 192.168.2.98 sysDescr.0</span><br><span class="line">SNMPv2-MIB::sysDescr.0 = STRING: Linux cMT-15C2 4.1.15+ #629 PREEMPT Fri Aug 10 18:14:50 CST 2018 armv7l</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>裝置端：</p>
+<ul>
+<li><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Received 43 byte packet from UDP: [192.168.1.21]:59770-&gt;[192.168.2.98]:161</span><br><span class="line">0000: 30 29 02 01  01 04 06 70  75 62 6C 69  63 A0 1C 02    0).....public...</span><br><span class="line">0016: 04 12 1B C8  08 02 01 00  02 01 00 30  0E 30 0C 06    ...........0.0..</span><br><span class="line">0032: 08 2B 06 01  02 01 01 01  00 05 00                    .+.........</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">Sending 114 bytes to UDP: [192.168.1.21]:59770-&gt;[192.168.2.98]:161</span><br><span class="line">0000: 30 70 02 01  01 04 06 70  75 62 6C 69  63 A2 63 02    0p.....public.c.</span><br><span class="line">0016: 04 12 1B C8  08 02 01 00  02 01 00 30  55 30 53 06    ...........0U0S.</span><br><span class="line">0032: 08 2B 06 01  02 01 01 01  00 04 47 4C  69 6E 75 78    .+........GLinux</span><br><span class="line">0048: 20 63 4D 54  2D 31 35 43  32 20 34 2E  31 2E 31 35     cMT-15C2 4.1.15</span><br><span class="line">0064: 2B 20 23 36  32 39 20 50  52 45 45 4D  50 54 20 46    + #629 PREEMPT F</span><br><span class="line">0080: 72 69 20 41  75 67 20 31  30 20 31 38  3A 31 34 3A    ri Aug 10 18:14:</span><br><span class="line">0096: 35 30 20 43  53 54 20 32  30 31 38 20  61 72 6D 76    50 CST 2018 armv</span><br><span class="line">0112: 37 6C</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ul>
+<p>我們可以再寫一個 snmpwalk 來抓取系統狀態<br><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">weintek-timmy<span class="meta">@weintek</span>-timmy:~$ snmpwalk -v <span class="number">1</span> <span class="number">192.168</span><span class="number">.2</span><span class="number">.98</span> -c <span class="keyword">public</span> system</span><br><span class="line">SNMPv2-MIB::sysDescr<span class="number">.0</span> = STRING: Linux cMT<span class="number">-15</span>C2 <span class="number">4.1</span><span class="number">.15</span>+ #<span class="number">629</span> PREEMPT Fri Aug <span class="number">10</span> <span class="number">18</span>:<span class="number">14</span>:<span class="number">50</span> CST <span class="number">2018</span> armv7l</span><br><span class="line">SNMPv2-MIB::sysObjectID<span class="number">.0</span> = OID: NET-SNMP-MIB::netSnmpAgentOIDs<span class="number">.10</span></span><br><span class="line">DISMAN-EVENT-MIB::sysUpTimeInstance = Timeticks: (<span class="number">55157</span>) <span class="number">0</span>:<span class="number">09</span>:<span class="number">11.57</span></span><br><span class="line">SNMPv2-MIB::sysContact<span class="number">.0</span> = STRING: Me &lt;me<span class="meta">@example</span>.org&gt;</span><br><span class="line">SNMPv2-MIB::sysName<span class="number">.0</span> = STRING: cMT<span class="number">-15</span>C2</span><br><span class="line">SNMPv2-MIB::sysLocation<span class="number">.0</span> = STRING: \<span class="string">"New Taipei City, Taiwan\"</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysServices.0 = INTEGER: 72</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORLastChange.0 = Timeticks: (0) 0:00:00.00</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORID.1 = OID: SNMPv2-MIB::snmpMIB</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORID.2 = OID: SNMP-VIEW-BASED-ACM-MIB::vacmBasicGroup</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORID.3 = OID: SNMP-FRAMEWORK-MIB::snmpFrameworkMIBCompliance</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORID.4 = OID: SNMP-MPD-MIB::snmpMPDCompliance</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORID.5 = OID: SNMP-USER-BASED-SM-MIB::usmMIBCompliance</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORDescr.1 = STRING: The MIB module for SNMPv2 entities</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORDescr.2 = STRING: View-based Access Control Model for SNMP.</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORDescr.3 = STRING: The SNMP Management Architecture MIB.</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORDescr.4 = STRING: The MIB for Message Processing and Dispatching.</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORDescr.5 = STRING: The management information definitions for the SNMP User-based Security Model.</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORUpTime.1 = Timeticks: (0) 0:00:00.00</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORUpTime.2 = Timeticks: (0) 0:00:00.00</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORUpTime.3 = Timeticks: (0) 0:00:00.00</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORUpTime.4 = Timeticks: (0) 0:00:00.00</span></span><br><span class="line"><span class="string">SNMPv2-MIB::sysORUpTime.5 = Timeticks: (0) 0:00:00.00</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="SNMP-OID-使用"><a href="#SNMP-OID-使用" class="headerlink" title="SNMP OID 使用"></a>SNMP OID 使用</h2><p>我們使用 <code>snmpwalk</code> 來取得目前 mib 可以使用的 module<br>只要輸入 <code>snmpwalk -v 2c -c public 192.168.2.98</code> 就可以 printf 出可以獲得的訊息</p>
+<h3 id="Linux-常用的-OID"><a href="#Linux-常用的-OID" class="headerlink" title="Linux 常用的 OID"></a>Linux 常用的 OID</h3><h4 id="Load"><a href="#Load" class="headerlink" title="Load"></a>Load</h4><table>
+<thead>
+<tr>
+<th>function</th>
+<th>OID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 minute Load</td>
+<td><code>.1.3.6.1.4.1.2021.10.1.3.1</code></td>
+</tr>
+<tr>
+<td>5 minute Load</td>
+<td><code>.1.3.6.1.4.1.2021.10.1.3.2</code></td>
+</tr>
+<tr>
+<td>15 minute Load</td>
+<td><code>.1.3.6.1.4.1.2021.10.1.3.3</code></td>
+</tr>
+</tbody>
+</table>
+<h4 id="CPU"><a href="#CPU" class="headerlink" title="CPU"></a>CPU</h4><table>
+<thead>
+<tr>
+<th>function</th>
+<th>OID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>percentage of user CPU time</td>
+<td><code>.1.3.6.1.4.1.2021.11.9.0</code></td>
+</tr>
+<tr>
+<td>raw user cpu time</td>
+<td><code>.1.3.6.1.4.1.2021.11.50.0</code></td>
+</tr>
+<tr>
+<td>percentages of system CPU time</td>
+<td><code>.1.3.6.1.4.1.2021.11.10.0</code></td>
+</tr>
+<tr>
+<td>raw system cpu time</td>
+<td><code>.1.3.6.1.4.1.2021.11.52.0</code></td>
+</tr>
+<tr>
+<td>percentages of idle CPU time</td>
+<td><code>.1.3.6.1.4.1.2021.11.11.0</code></td>
+</tr>
+<tr>
+<td>raw idle cpu time</td>
+<td><code>.1.3.6.1.4.1.2021.11.53.0</code></td>
+</tr>
+<tr>
+<td>raw nice cpu time</td>
+<td><code>.1.3.6.1.4.1.2021.11.51.0</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h4 id="內部儲存資訊"><a href="#內部儲存資訊" class="headerlink" title="內部儲存資訊"></a>內部儲存資訊</h4><table>
+<thead>
+<tr>
+<th>function</th>
+<th>OID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total Swap Size</td>
+<td><code>.1.3.6.1.4.1.2021.4.3.0</code></td>
+</tr>
+<tr>
+<td>Available Swap Space</td>
+<td><code>.1.3.6.1.4.1.2021.4.4.0</code></td>
+</tr>
+<tr>
+<td>Total RAM in machine</td>
+<td><code>.1.3.6.1.4.1.2021.4.5.0</code></td>
+</tr>
+<tr>
+<td>Total RAM used</td>
+<td><code>.1.3.6.1.4.1.2021.4.6.0</code></td>
+</tr>
+<tr>
+<td>Total RAM Free</td>
+<td><code>.1.3.6.1.4.1.2021.4.11.0</code></td>
+</tr>
+<tr>
+<td>Total RAM Shared</td>
+<td><code>.1.3.6.1.4.1.2021.4.13.0</code></td>
+</tr>
+<tr>
+<td>Total RAM Buffered</td>
+<td><code>.1.3.6.1.4.1.2021.4.14.0</code></td>
+</tr>
+<tr>
+<td>Total Cached Memory</td>
+<td><code>.1.3.6.1.4.1.2021.4.15.0</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h4 id="Disk-相關"><a href="#Disk-相關" class="headerlink" title="Disk 相關"></a>Disk 相關</h4><blockquote>
+<p>The snmpd.conf needs to be edited. Add the following (assuming a machine with a single ‘/’ partition):<br>disk / 100000 (or)<br>includeAllDisks 10% for all partitions and disks<br>The OIDs are as follows</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>function</th>
+<th>OID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Path where the disk is mounted</td>
+<td><code>.1.3.6.1.4.1.2021.9.1.2.1</code></td>
+</tr>
+<tr>
+<td>Path of the device for the partition</td>
+<td><code>.1.3.6.1.4.1.2021.9.1.3.1</code></td>
+</tr>
+<tr>
+<td>Total size of the disk/partion (kBytes)</td>
+<td><code>.1.3.6.1.4.1.2021.9.1.6.1</code></td>
+</tr>
+<tr>
+<td>Available space on the disk</td>
+<td><code>.1.3.6.1.4.1.2021.9.1.7.1</code></td>
+</tr>
+<tr>
+<td>Used space on the disk</td>
+<td><code>.1.3.6.1.4.1.2021.9.1.8.1</code></td>
+</tr>
+<tr>
+<td>Percentage of space used on disk</td>
+<td><code>.1.3.6.1.4.1.2021.9.1.9.1</code></td>
+</tr>
+<tr>
+<td>Percentage of inodes used on disk</td>
+<td><code>.1.3.6.1.4.1.2021.9.1.10.1</code></td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h4 id="系統運行時間"><a href="#系統運行時間" class="headerlink" title="系統運行時間"></a>系統運行時間</h4><table>
+<thead>
+<tr>
+<th>function</th>
+<th>OID</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>System Uptime</td>
+<td><code>.1.3.6.1.2.1.1.3.0</code></td>
+</tr>
+</tbody>
+</table>
+<p>PS: linux 系统也可直接用 uptime 命令獲得系統資訊</p>
+<h4 id="網路設備相關"><a href="#網路設備相關" class="headerlink" title="網路設備相關"></a>網路設備相關</h4><table>
+<thead>
+<tr>
+<th>function</th>
+<th>OID</th>
+<th>功能說明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ifIndex</td>
+<td><code>1.3.6.1.2.1.2.2.1.1.0</code></td>
+<td>端口索引編號</td>
+</tr>
+<tr>
+<td>ifDescr</td>
+<td><code>1.3.6.1.2.1.2.2.1.2.0</code></td>
+<td>端口描述</td>
+</tr>
+<tr>
+<td>ifType</td>
+<td><code>1.3.6.1.2.1.2.2.1.3.0</code></td>
+<td>端口類型</td>
+</tr>
+<tr>
+<td>ifMtu</td>
+<td><code>1.3.6.1.2.1.2.2.1.4.0</code></td>
+<td>最大傳輸封包字節數</td>
+</tr>
+<tr>
+<td>ifSpeed</td>
+<td><code>1.3.6.1.2.1.2.2.1.5.0</code></td>
+<td>端口速度</td>
+</tr>
+<tr>
+<td>ifPhysAddress</td>
+<td><code>1.3.6.1.2.1.2.2.1.6.0</code></td>
+<td>MAC address</td>
+</tr>
+<tr>
+<td>ifOperStatus</td>
+<td><code>1.3.6.1.2.1.2.2.1.8.0</code></td>
+<td>操作狀態</td>
+</tr>
+<tr>
+<td>ifLastChange</td>
+<td><code>1.3.6.1.2.1.2.2.1.9.0</code></td>
+<td>上次狀態更新時間</td>
+</tr>
+<tr>
+<td>ifInOctets</td>
+<td><code>1.3.6.1.2.1.2.2.1.10.0</code></td>
+<td>輸入字節數</td>
+</tr>
+<tr>
+<td>ifInUcastPkts</td>
+<td><code>1.3.6.1.2.1.2.2.1.11.0</code></td>
+<td>輸入非廣播封包數</td>
+</tr>
+<tr>
+<td>ifInNUcastPkts</td>
+<td><code>1.3.6.1.2.1.2.2.1.12.0</code></td>
+<td>輸入廣播封包數</td>
+</tr>
+<tr>
+<td>ifInDiscards</td>
+<td><code>1.3.6.1.2.1.2.2.1.13.0</code></td>
+<td>輸入封包丟棄數</td>
+</tr>
+<tr>
+<td>ifInErrors</td>
+<td><code>1.3.6.1.2.1.2.2.1.14.0</code></td>
+<td>輸入封包錯誤數</td>
+</tr>
+<tr>
+<td>ifInUnknownProtos</td>
+<td><code>1.3.6.1.2.1.2.2.1.15.0</code></td>
+<td>輸入未知協議封包數</td>
+</tr>
+<tr>
+<td>ifOutOctets</td>
+<td><code>1.3.6.1.2.1.2.2.1.16.0</code></td>
+<td>輸出字節數</td>
+</tr>
+<tr>
+<td>ifOutUcastPkts</td>
+<td><code>1.3.6.1.2.1.2.2.1.17.0</code></td>
+<td>輸出非廣播封包數</td>
+</tr>
+<tr>
+<td>ifOutNUcastPkts</td>
+<td><code>1.3.6.1.2.1.2.2.1.18.0</code></td>
+<td>輸出廣播封包數</td>
+</tr>
+<tr>
+<td>ifOutDiscards</td>
+<td><code>1.3.6.1.2.1.2.2.1.19.0</code></td>
+<td>輸出封包丟棄數</td>
+</tr>
+<tr>
+<td>ifOutErrors</td>
+<td><code>1.3.6.1.2.1.2.2.1.20.0</code></td>
+<td>輸出封包錯誤數</td>
+</tr>
+<tr>
+<td>ifOutQLen</td>
+<td><code>1.3.6.1.2.1.2.2.1.21.0</code></td>
+<td>output queue size</td>
+</tr>
+</tbody>
+</table>
+<p>流量輸出是用計數器，數目會改變，單位是 byte, 32 位<br>如果流量大過出現土寄不正確的情形，就需要在編譯時加上 <code>enable-mfd-rewrites</code> 參數，來支援 64 位的計數器</p>
+<h3 id="reference"><a href="#reference" class="headerlink" title="reference"></a>reference</h3><ul>
+<li><a href="https://www.cnblogs.com/quliuliu2013/p/7520241.html" target="_blank" rel="noopener">https://www.cnblogs.com/quliuliu2013/p/7520241.html</a></li>
+<li><a href="http://www.cnblogs.com/oloroso/p/4595123.html" target="_blank" rel="noopener">http://www.cnblogs.com/oloroso/p/4595123.html</a></li>
+<li><a href="http://jyhshin.pixnet.net/blog/post/44844463-net-snmp-porting" target="_blank" rel="noopener">http://jyhshin.pixnet.net/blog/post/44844463-net-snmp-porting</a></li>
+<li><a href="https://blog.csdn.net/gujintong1110/article/details/51791097" target="_blank" rel="noopener">https://blog.csdn.net/gujintong1110/article/details/51791097</a></li>
+<li><a href="https://my.oschina.net/yisenn/blog/14679" target="_blank" rel="noopener">https://my.oschina.net/yisenn/blog/14679</a></li>
+<li><a href="https://my.oschina.net/yisenn/blog/14626" target="_blank" rel="noopener">https://my.oschina.net/yisenn/blog/14626</a></li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Linux/" rel="tag"># Linux</a>
+          
+            <a href="/tags/SNMP/" rel="tag"># SNMP</a>
+          
+            <a href="/tags/Embedded-linux/" rel="tag"># Embedded linux</a>
+          
+            <a href="/tags/i-MX6/" rel="tag"># i.MX6</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/11/21/TLPI-inotify/" rel="next" title="[讀書心得] The Linux Programming Interface 第 19 章：檔案監控事件">
+                <i class="fa fa-chevron-left"></i> [讀書心得] The Linux Programming Interface 第 19 章：檔案監控事件
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/01/15/TLPI-ExitProcess/" rel="prev" title="The Linux Programming Interface : Chapter 25: 終止行程">
+                The Linux Programming Interface : Chapter 25: 終止行程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Timmy Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">標籤</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/m033010041" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:timmy_post@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="www.linkedin.com/in/Gugeegee" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.facebook.com/profile.php?id=100001387579922" target="_blank" title="Facebook">
+                      
+                        <i class="fa fa-fw fa-facebook"></i>Facebook</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#snmp-for-arm-linux-platform"><span class="nav-number">2.</span> <span class="nav-text">snmp for arm-linux platform</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#準備工作"><span class="nav-number">2.1.</span> <span class="nav-text">準備工作</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-下載-net-snmp-5-8-source-code-package"><span class="nav-number">2.2.</span> <span class="nav-text">1. 下載 net-snmp 5.8 source code package</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-透過-cross-compiler-build-snmpd-binary"><span class="nav-number">2.3.</span> <span class="nav-text">2. 透過 cross-compiler build snmpd binary</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#configure-的-option"><span class="nav-number">2.3.1.</span> <span class="nav-text">configure 的 option</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#之後就執行-make"><span class="nav-number">2.3.2.</span> <span class="nav-text">之後就執行 make</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#使用strip進行程式瘦身"><span class="nav-number">2.3.3.</span> <span class="nav-text">使用strip進行程式瘦身</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-學習-snmpd-conf-的設定"><span class="nav-number">2.4.</span> <span class="nav-text">3. 學習 snmpd.conf 的設定</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-除錯與問題處理"><span class="nav-number">2.5.</span> <span class="nav-text">5. 除錯與問題處理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#遇到-cannot-file-module-與-snmpd-conf-unknown-token-的問題"><span class="nav-number">2.5.1.</span> <span class="nav-text">遇到 cannot file module 與 snmpd.conf: unknown token 的問題</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#處理-snmpd-conf-line-Warning-Unknown-token-的問題"><span class="nav-number">2.5.1.1.</span> <span class="nav-text">處理 snmpd.conf: line ...: Warning: Unknown token: ... 的問題</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#處理-cannot-find-module-問題"><span class="nav-number">2.5.1.2.</span> <span class="nav-text">處理 cannot find module 問題</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#處理-Error-opening-specified-endpoint-“udp-161”"><span class="nav-number">2.5.1.3.</span> <span class="nav-text">處理 Error opening specified endpoint “udp:161”</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-使用-snmp-client-來驗證正確"><span class="nav-number">2.6.</span> <span class="nav-text">6. 使用 snmp client 來驗證正確</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SNMP-OID-使用"><span class="nav-number">3.</span> <span class="nav-text">SNMP OID 使用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Linux-常用的-OID"><span class="nav-number">3.1.</span> <span class="nav-text">Linux 常用的 OID</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Load"><span class="nav-number">3.1.1.</span> <span class="nav-text">Load</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#CPU"><span class="nav-number">3.1.2.</span> <span class="nav-text">CPU</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#內部儲存資訊"><span class="nav-number">3.1.3.</span> <span class="nav-text">內部儲存資訊</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Disk-相關"><span class="nav-number">3.1.4.</span> <span class="nav-text">Disk 相關</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#系統運行時間"><span class="nav-number">3.1.5.</span> <span class="nav-text">系統運行時間</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#網路設備相關"><span class="nav-number">3.1.6.</span> <span class="nav-text">網路設備相關</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#reference"><span class="nav-number">3.2.</span> <span class="nav-text">reference</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timmy Liu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 強力驅動</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主題 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
