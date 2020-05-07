@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-tw">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="NAND flash,OOB,ECC,MTD,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Timmy的軟韌體開發筆記" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="前言會在此文章中看到以下紀錄  在工作時有碰到 nand flash 相關問題的處理方式 順道了解 nand flash 在 embedded linux platform 的運作方式 nand flash 的基本知識">
+<meta name="keywords" content="NAND flash,OOB,ECC,MTD">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Porting NAND flash 實作中的相關知識筆記">
+<meta property="og:url" content="https://m033010041.github.io/2020/02/29/nandflash-related-knowledge/index.html">
+<meta property="og:site_name" content="Timmy的軟韌體開發筆記">
+<meta property="og:description" content="前言會在此文章中看到以下紀錄  在工作時有碰到 nand flash 相關問題的處理方式 順道了解 nand flash 在 embedded linux platform 的運作方式 nand flash 的基本知識">
+<meta property="og:locale" content="zh-tw">
+<meta property="og:image" content="https://m033010041.github.io/2020/02/29/nandflash-related-knowledge/nand_1Gb_organization.png">
+<meta property="og:updated_time" content="2020-03-08T17:34:35.143Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Porting NAND flash 實作中的相關知識筆記">
+<meta name="twitter:description" content="前言會在此文章中看到以下紀錄  在工作時有碰到 nand flash 相關問題的處理方式 順道了解 nand flash 在 embedded linux platform 的運作方式 nand flash 的基本知識">
+<meta name="twitter:image" content="https://m033010041.github.io/2020/02/29/nandflash-related-knowledge/nand_1Gb_organization.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '作者'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://m033010041.github.io/2020/02/29/nandflash-related-knowledge/">
+
+
+
+
+
+  <title>Porting NAND flash 實作中的相關知識筆記 | Timmy的軟韌體開發筆記</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Timmy的軟韌體開發筆記</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">累積經驗，分享經驗</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            標籤
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            歸檔
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://m033010041.github.io/2020/02/29/nandflash-related-knowledge/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Timmy Liu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timmy的軟韌體開發筆記">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Porting NAND flash 實作中的相關知識筆記</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2020-02-29T16:02:58+08:00">
+                2020-02-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>會在此文章中看到以下紀錄</p>
+<ol>
+<li>在工作時有碰到 nand flash 相關問題的處理方式</li>
+<li>順道了解 nand flash 在 embedded linux platform 的運作方式</li>
+<li>nand flash 的基本知識</li>
+</ol>
+<a id="more"></a>
+<p>以下資料，由些從公司智庫取得，有些是從網路文章、書籍等取得</p>
+<h2 id="Nand-flash-的基本知識"><a href="#Nand-flash-的基本知識" class="headerlink" title="Nand flash 的基本知識"></a>Nand flash 的基本知識</h2><h3 id="flash-的種類"><a href="#flash-的種類" class="headerlink" title="flash 的種類"></a>flash 的種類</h3><p>在公司主要提到的是 NAND flash 以及 NOR flash</p>
+<ul>
+<li>NOR flash<ul>
+<li>Intel 於 1988 年發表</li>
+<li>支援隨機存取，讀資料的方式跟 RAM 接近，給 address，data 就能讀出</li>
+<li>NOR 的特點是原地執行 (XIP, eXecute In Place)，這樣應用程序可以直接在 flash memory 內運行，不必再把資料讀到系統 RAM 中</li>
+<li>每次寫入 / 擦除都是以 1 block 為單位; 1 block = 16~128 KBytes</li>
+<li>小容量 (1~4MB) 時具有很高的成本效益，但是很低的寫入和擦除速度大大影響了它的性能</li>
+<li>NOR flash 佔據了容量為 1～16MB 閃存市場的大部分，因隨機存取快，應用在手機中</li>
+<li>NOR的擦寫週期壽命是一萬~十萬次</li>
+<li>適合用於儲存不需經常更新的程式，例如 BIOS 或韌體</li>
+</ul>
+</li>
+<li>NAND flash<ul>
+<li>Toshiba 於 1989 年發表</li>
+<li>適用於大容量，更低的寫入和擦除時間，高密度 (單元尺寸是 NOR Flash 的一半)，高壽命 (10倍左右)，低製造成本</li>
+<li>I/O pin 只有 8 個，只允許連續讀取，所以不適合用於電腦主記憶體 (不支援隨機存取)</li>
+<li>讀寫操作以 1 page 為單位，擦除 (Erase) 以 1 block 為單位</li>
+<li>1 block = 32 pages; 每個 block 的單位依照廠商製造的不同有區別，介於 8~32 KBytes 之間</li>
+<li>NAND 擦除單元更小，因此擦除速度 (4ms) 比NOR的 (5s) 快</li>
+<li>適合於資料儲存，例如:MMC、固態硬碟 (SSD)、USB 3.0 隨身碟、手機、數位相機</li>
+<li>甚至手機、MP3 撥放器用 NAND Flash 當作存放多媒體檔案的媒介，原因在於成本、空間、還有寫入資料的速度</li>
+<li>NAND 閃存中每個區塊的最大擦寫次數是一百萬次</li>
+</ul>
+</li>
+</ul>
+<h3 id="NAND-flash-v-s-NOR-flash"><a href="#NAND-flash-v-s-NOR-flash" class="headerlink" title="NAND flash v.s NOR flash"></a>NAND flash v.s NOR flash</h3><table>
+<thead>
+<tr>
+<th>比較項目</th>
+<th>NAND flash</th>
+<th>NOR flash</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>讀取速度</strong></td>
+<td>middle</td>
+<td>fast</td>
+</tr>
+<tr>
+<td><strong>寫入速度</strong></td>
+<td>fast</td>
+<td>slow</td>
+</tr>
+<tr>
+<td><strong>擦除速度</strong></td>
+<td>fast</td>
+<td>slow</td>
+</tr>
+<tr>
+<td><strong>容量</strong></td>
+<td>large</td>
+<td>small</td>
+</tr>
+<tr>
+<td><strong>成本</strong></td>
+<td>low</td>
+<td>high</td>
+</tr>
+<tr>
+<td><strong>市佔率</strong></td>
+<td>upper</td>
+<td>lower</td>
+</tr>
+</tbody>
+</table>
+<h3 id="Page-and-block-and-related-informations"><a href="#Page-and-block-and-related-informations" class="headerlink" title="Page and block and related informations"></a>Page and block and related informations</h3><p><img src="/2020/02/29/nandflash-related-knowledge/nand_1Gb_organization.png" alt=""><br>source: <a href="http://cmchao.logdown.com/posts/60216" target="_blank" rel="noopener">http://cmchao.logdown.com/posts/60216</a></p>
+<h4 id="相關專有名詞"><a href="#相關專有名詞" class="headerlink" title="相關專有名詞"></a>相關專有名詞</h4><ul>
+<li>Page<br>Page 乃 nand flash <strong>讀取時的最小單位</strong> ，目前常見的 page size 為 2k bytes，視產品設計與製程技術等等而定</li>
+<li>Spare<br>Spare 是每個 page 後面都會接一段額外的容量去儲存此 page 相關的資訊，通常會存 ECC，完成 bit correction 的目的</li>
+<li>OOB (out of boundary)<br>就是 Spare，我們也比較常用這個說法</li>
+<li>Small page / Large page<br>大於等於 2k bytes page 就是 large，相對都是 small page</li>
+<li>Block<br>Block 是 <strong>寫入時的最小單位</strong> ，理論上是 64 page 為一個 block，依容量也會決定一顆 nand flash 之中會有多少個 block</li>
+</ul>
+<h4 id="how-to-read-write"><a href="#how-to-read-write" class="headerlink" title="how to read write"></a>how to read write</h4><ul>
+<li>nand flash 主要都是以 <strong>page/block 來當作讀/寫 的最小單位</strong></li>
+<li>由於物理性質，write 的時候「只能從１寫成０」</li>
+<li>所以由上述，假設你要寫入一個數值，要從原本的 0 寫成 1，就一定要先 erase block</li>
+<li>erase block 之後再將數值復原</li>
+</ul>
+<p>所以平常 write 的動作如下</p>
+<ol>
+<li>read a hole block in to RAM (DDR)</li>
+<li>change RAM data</li>
+<li>erase block</li>
+<li>write data from ram into block (program)</li>
+</ol>
+<p>read 就是讀取一個 page，無太多限制</p>
+<h4 id="Life-cycle"><a href="#Life-cycle" class="headerlink" title="Life cycle"></a>Life cycle</h4><p>主要分成 <strong>Endurance</strong> 以及 <strong>Retention</strong></p>
+<ul>
+<li>Endurance: Erase block 是一個不可逆的動作，會使得 nand flash 的寫入次數下降，通常為 1k-100k 次</li>
+<li>Retention: 當資料放到 nand 中，可以保證保留資料的時間，一般來說是 10 years</li>
+</ul>
+<h4 id="Bad-block"><a href="#Bad-block" class="headerlink" title="Bad block"></a>Bad block</h4><p>就是 chip 之中有可以讀取後，會無法還原成原本數值的 block，會分成：</p>
+<ol>
+<li>factory-bad: 指的是出廠就已經出現問題的 bad block</li>
+<li>worn-out: 即使用多次 erase 後導致的 bad block</li>
+</ol>
+<h4 id="ECC-OOB"><a href="#ECC-OOB" class="headerlink" title="ECC / OOB"></a>ECC / OOB</h4><p>ECC 就是所謂的 error correction code，每次 read 的時候，都需要透過每個 page 中的 spare (oob) 來進行校正檢查，一般用的檢查有三種</p>
+<ul>
+<li>漢明碼(Hamming code)</li>
+<li>Reed-Solomon</li>
+<li>Binary BCH8</li>
+</ul>
+<h4 id="BBT"><a href="#BBT" class="headerlink" title="BBT"></a>BBT</h4><p>BBT 就是 bad block table，之後 bbt 有 scan 到新的 bad block information 都會記在此</p>
+<h2 id="Porting-and-test-nand-flash-on-embedded-linux-platform"><a href="#Porting-and-test-nand-flash-on-embedded-linux-platform" class="headerlink" title="Porting and test nand flash on embedded linux platform"></a>Porting and test nand flash on embedded linux platform</h2><h3 id="U-boot"><a href="#U-boot" class="headerlink" title="U-boot"></a>U-boot</h3><p>nand read / nand write</p>
+<h3 id="Kernel"><a href="#Kernel" class="headerlink" title="Kernel"></a>Kernel</h3><h4 id="Porting-drivers"><a href="#Porting-drivers" class="headerlink" title="Porting drivers"></a>Porting drivers</h4><h4 id="Define-nand-flash-partition-MTD"><a href="#Define-nand-flash-partition-MTD" class="headerlink" title="Define nand flash partition (MTD)"></a>Define nand flash partition (MTD)</h4><p><a href="https://redmine.internal.ihmi.net/issues/23609" target="_blank" rel="noopener">https://redmine.internal.ihmi.net/issues/23609</a></p>
+<h3 id="What-is-MTD"><a href="#What-is-MTD" class="headerlink" title="What is MTD?"></a>What is MTD?</h3><h2 id="Related-nand-flash-issues-or-problems-in-my-work-experience"><a href="#Related-nand-flash-issues-or-problems-in-my-work-experience" class="headerlink" title="Related nand flash issues or problems in my work experience"></a>Related nand flash issues or problems in my work experience</h2><h3 id="Problem-Get-oops-while-ramdisk-while-running-flash-eraseall"><a href="#Problem-Get-oops-while-ramdisk-while-running-flash-eraseall" class="headerlink" title="Problem: Get oops while ramdisk while running flash_eraseall"></a>Problem: Get oops while ramdisk while running flash_eraseall</h3><p>flash_eraseall is a busybox open source code and show at: <a href="https://github.com/brgl/busybox/blob/master/miscutils/flash_eraseall.c" target="_blank" rel="noopener">https://github.com/brgl/busybox/blob/master/miscutils/flash_eraseall.c</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br></pre></td><td class="code"><pre><span class="line">[root@freescale root]# ll /usr/bin/flash_eraseall</span><br><span class="line">-rwxrwxr-x    1 messageb messageb    13684 Mar 28  2017 /usr/bin/flash_eraseall</span><br><span class="line">[root@freescale root]# ll /usr/bin/kobs-ng</span><br><span class="line">-rwxrwxr-x    1 messageb messageb   675508 Mar 28  2017 /usr/bin/kobs-ng</span><br><span class="line">[root@freescale root]# cp /usr/bin/flash_eraseall /tmp/</span><br><span class="line">[root@freescale root]# cp /usr/bin/kobs-ng /tmp/</span><br><span class="line">[root@freescale root]# ll /tmp/</span><br><span class="line">-rw-r--r--    1 root     root        16549 Jan  1 00:00 Xorg.0.log</span><br><span class="line">-rw-r--r--    1 root     root           20 Jan  1 00:00 agent.pid</span><br><span class="line">drwxr-xr-x    2 root     root           80 Jan  1 00:00 dbus</span><br><span class="line">drwxr-xr-x    4 root     root           80 Jan  1 00:00 extend</span><br><span class="line">-rw-r--r--    1 root     root            0 Jan  1 00:00 flag_mount</span><br><span class="line">-rwxr-xr-x    1 root     root        13684 Jan  1 00:01 flash_eraseall</span><br><span class="line">-rw-r--r--    1 root     root            4 Jan  1 00:00 inetd.pid</span><br><span class="line">-rwxr-xr-x    1 root     root       675508 Jan  1 00:01 kobs-ng</span><br><span class="line">prw-rw-rw-    1 root     root            0 Jan  1 00:00 msg</span><br><span class="line">-rw-r--r--    1 root     root            4 Jan  1 00:00 pure-ftpd.pid</span><br><span class="line">-rw-r--r--    1 root     root            4 Jan  1 00:00 sshd.pid</span><br><span class="line">-rw-r--r--    1 root     root           20 Jan  1 00:00 sysmsg.pid</span><br><span class="line">-rw-r--r--    1 root     root            9 Jan  1 00:00 usbpath</span><br><span class="line">-rw-r--r--    1 root     root            0 Jan  1 00:00 utmp</span><br><span class="line">-rw-r--r--    1 root     root           20 Jan  1 00:00 xvkbd.pid</span><br><span class="line">[  187.747631] mtd_ioctl 80044d19, arg 1</span><br><span class="line">[  187.751320] gpmi_nand_switch_ecc: HW ECC selected</span><br><span class="line">[  187.758934] ubi0 warning: ubi_io_read: error -74 (ECC error) while reading 1242 bytes from PEB 15:13856, read only 1242 bytes, retry</span><br><span class="line">[  187.771352] ubi0 warning: ubi_io_read: error -74 (ECC error) while reading 1242 bytes from PEB 15:13856, read only 1242 bytes, retry</span><br><span class="line">[  187.783642] ubi0 warning: ubi_io_read: error -74 (ECC error) while reading 1242 bytes from PEB 15:13856, read only 1242 bytes, retry</span><br><span class="line">[  187.795939] ubi0 error: ubi_io_read: error -74 (ECC error) while reading 1242 bytes from PEB 15:13856, read 1242 bytes</span><br><span class="line">[  187.806681] CPU: 0 PID: 300 Comm: sh Tainted: G           O    4.1.15+ #236</span><br><span class="line">[  187.813649] Hardware name: Freescale i.MX6 Ultralite (Device Tree)</span><br><span class="line">[  187.819898] [&lt;8001314c&gt;] (unwind_backtrace) from [&lt;80011294&gt;] (show_stack+0x10/0x14)</span><br><span class="line">[  187.827704] [&lt;80011294&gt;] (show_stack) from [&lt;801cf230&gt;] (ubi_io_read+0x1e0/0x2b8)</span><br><span class="line">[  187.835305] [&lt;801cf230&gt;] (ubi_io_read) from [&lt;801cd0ac&gt;] (ubi_eba_read_leb+0x254/0x35c)</span><br><span class="line">[  187.843334] [&lt;801cd0ac&gt;] (ubi_eba_read_leb) from [&lt;801cc02c&gt;] (ubi_leb_read+0x68/0xb8)</span><br><span class="line">[  187.851375] [&lt;801cc02c&gt;] (ubi_leb_read) from [&lt;80118890&gt;] (ubifs_leb_read+0x2c/0x90)</span><br><span class="line">[  187.859182] [&lt;80118890&gt;] (ubifs_leb_read) from [&lt;8011b4e8&gt;] (fallible_read_node+0x60/0x174)</span><br><span class="line">[  187.867580] [&lt;8011b4e8&gt;] (fallible_read_node) from [&lt;8011d32c&gt;] (ubifs_tnc_locate+0x124/0x1a0)</span><br><span class="line">[  187.876237] [&lt;8011d32c&gt;] (ubifs_tnc_locate) from [&lt;80110e68&gt;] (do_readpage+0x1a8/0x430)</span><br><span class="line">[  187.884266] [&lt;80110e68&gt;] (do_readpage) from [&lt;801121ac&gt;] (ubifs_readpage+0x418/0x460)</span><br><span class="line">[  187.892144] [&lt;801121ac&gt;] (ubifs_readpage) from [&lt;8007445c&gt;] (filemap_fault+0x284/0x428)</span><br><span class="line">[  187.900195] [&lt;8007445c&gt;] (filemap_fault) from [&lt;8008d9d8&gt;] (__do_fault+0x3c/0xa4)</span><br><span class="line">[  187.907722] [&lt;8008d9d8&gt;] (__do_fault) from [&lt;80090808&gt;] (handle_mm_fault+0x340/0xcf0)</span><br><span class="line">[  187.915595] [&lt;80090808&gt;] (handle_mm_fault) from [&lt;80014c64&gt;] (do_page_fault+0x118/0x284)</span><br><span class="line">[  187.923708] [&lt;80014c64&gt;] (do_page_fault) from [&lt;8000923c&gt;] (do_DataAbort+0x34/0xb4)</span><br><span class="line">[  187.931409] [&lt;8000923c&gt;] (do_DataAbort) from [&lt;80011c58&gt;] (__dabt_svc+0x38/0x60)</span><br><span class="line">[  187.938833] Exception stack(0x86609e70 to 0x86609eb8)</span><br><span class="line">[  187.943899] 9e60:                                     000a338c 00000c6c 00000000 00000000</span><br><span class="line">[  187.952114] 9e80: 86d8c480 86f2f800 87323180 000a338c 000a7e30 00000000 86cfe740 86f2e600</span><br><span class="line">[  187.960326] 9ea0: 00000000 86609eb8 803a5c50 8016e2d8 20000013 ffffffff</span><br><span class="line">[  187.966986] [&lt;80011c58&gt;] (__dabt_svc) from [&lt;8016e2d8&gt;] (__clear_user_std+0x34/0x68)</span><br><span class="line">[  187.974774] UBIFS error (ubi0:0 pid 300): ubifs_leb_read: reading 1242 bytes from LEB 13:9760 failed, error -74</span><br><span class="line">[  187.984894] CPU: 0 PID: 300 Comm: sh Tainted: G           O    4.1.15+ #236</span><br><span class="line">[  187.991862] Hardware name: Freescale i.MX6 Ultralite (Device Tree)</span><br><span class="line">[  187.998087] [&lt;8001314c&gt;] (unwind_backtrace) from [&lt;80011294&gt;] (show_stack+0x10/0x14)</span><br><span class="line">[  188.005886] [&lt;80011294&gt;] (show_stack) from [&lt;801188e0&gt;] (ubifs_leb_read+0x7c/0x90)</span><br><span class="line">[  188.013478] [&lt;801188e0&gt;] (ubifs_leb_read) from [&lt;8011b4e8&gt;] (fallible_read_node+0x60/0x174)</span><br><span class="line">[  188.021871] [&lt;8011b4e8&gt;] (fallible_read_node) from [&lt;8011d32c&gt;] (ubifs_tnc_locate+0x124/0x1a0)</span><br><span class="line">[  188.030524] [&lt;8011d32c&gt;] (ubifs_tnc_locate) from [&lt;80110e68&gt;] (do_readpage+0x1a8/0x430)</span><br><span class="line">[  188.038570] [&lt;80110e68&gt;] (do_readpage) from [&lt;801121ac&gt;] (ubifs_readpage+0x418/0x460)</span><br><span class="line">[  188.046442] [&lt;801121ac&gt;] (ubifs_readpage) from [&lt;8007445c&gt;] (filemap_fault+0x284/0x428)</span><br><span class="line">[  188.054468] [&lt;8007445c&gt;] (filemap_fault) from [&lt;8008d9d8&gt;] (__do_fault+0x3c/0xa4)</span><br><span class="line">[  188.061997] [&lt;8008d9d8&gt;] (__do_fault) from [&lt;80090808&gt;] (handle_mm_fault+0x340/0xcf0)</span><br><span class="line">[  188.069874] [&lt;80090808&gt;] (handle_mm_fault) from [&lt;80014c64&gt;] (do_page_fault+0x118/0x284)</span><br><span class="line">[  188.078006] [&lt;80014c64&gt;] (do_page_fault) from [&lt;8000923c&gt;] (do_DataAbort+0x34/0xb4)</span><br><span class="line">[  188.085705] [&lt;8000923c&gt;] (do_DataAbort) from [&lt;80011c58&gt;] (__dabt_svc+0x38/0x60)</span><br><span class="line">[  188.093112] Exception stack(0x86609e70 to 0x86609eb8)</span><br><span class="line">[  188.098227] 9e60:                                     000a338c 00000c6c 00000000 00000000</span><br><span class="line">[  188.106450] 9e80: 86d8c480 86f2f800 87323180 000a338c 000a7e30 00000000 86cfe740 86f2e600</span><br><span class="line">[  188.114641] 9ea0: 00000000 86609eb8 803a5c50 8016e2d8 20000013 ffffffff</span><br><span class="line">[  188.121301] [&lt;80011c58&gt;] (__dabt_svc) from [&lt;8016e2d8&gt;] (__clear_user_std+0x34/0x68)</span><br><span class="line">[  188.129081] UBIFS error (ubi0:0 pid 300): try_read_node: cannot read node type 1 from LEB 13:9760, error -74</span><br><span class="line">[  188.139350] ubi0 warning: ubi_io_read: error -74 (ECC error) while reading 1242 bytes from PEB 15:13856, read only 1242 bytes, retry</span><br><span class="line">[  188.151630] ubi0 warning: ubi_io_read: error -74 (ECC error) while reading 1242 bytes from PEB 15:13856, read only 1242 bytes, retry</span><br><span class="line">[  188.163889] ubi0 warning: ubi_io_read: error -74 (ECC error) while reading 1242 bytes from PEB 15:13856, read only 1242 bytes, retry</span><br><span class="line">[  188.176135] ubi0 error: ubi_io_read: error -74 (ECC error) while reading 1242 bytes from PEB 15:13856, read 1242 bytes</span><br><span class="line">[  188.186872] CPU: 0 PID: 300 Comm: sh Tainted: G           O    4.1.15+ #236</span><br></pre></td></tr></table></figure>
+<h4 id="Analyze-problem"><a href="#Analyze-problem" class="headerlink" title="Analyze problem"></a>Analyze problem</h4><p>問題點不是system()<br>而是 flash_eraseall 這支程式<br>透過 file command 去看這個檔案可以發現<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">file flash_eraseall</span><br><span class="line">flash_eraseall: ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.3, for GNU/Linux 2.6.26, not stripped</span><br></pre></td></tr></table></figure></p>
+<p>而之前加上ls可以過是因為</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">file busybox</span><br><span class="line">busybox: ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux.so.3, stripped</span><br></pre></td></tr></table></figure>
+<p>busybox 也是 dynamic link<br>因此只要之前有 call 到 libc 就可以了<br>表示如果flash_eraseall有用到其他libary的話還是會出現那個問題<br>因此在設計時 要非常注意執行檔再切換 ECC 時無論是執行檔還是連結 libary 的位置</p>
+<h4 id="Solved-skill"><a href="#Solved-skill" class="headerlink" title="Solved skill"></a>Solved skill</h4><ol>
+<li>Add related libc to ramdisk.</li>
+<li>Build flash_eraseall binary using static build.</li>
+</ol>
+<h2 id="BENAND"><a href="#BENAND" class="headerlink" title="BENAND"></a>BENAND</h2><h2 id="subpage"><a href="#subpage" class="headerlink" title="subpage"></a>subpage</h2><h2 id="What-is-nand-torture"><a href="#What-is-nand-torture" class="headerlink" title="What is nand torture?"></a>What is nand torture?</h2><h2 id="Related-datasheet-TC58NVG1S3HTA00"><a href="#Related-datasheet-TC58NVG1S3HTA00" class="headerlink" title="Related datasheet: TC58NVG1S3HTA00"></a>Related datasheet: TC58NVG1S3HTA00</h2><p><a href="TC58NVG1S3HTA00.pdf">See me</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/NAND-flash/" rel="tag"># NAND flash</a>
+          
+            <a href="/tags/OOB/" rel="tag"># OOB</a>
+          
+            <a href="/tags/ECC/" rel="tag"># ECC</a>
+          
+            <a href="/tags/MTD/" rel="tag"># MTD</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/02/28/linked-list-in-C/" rel="next" title="linked-list-in-C">
+                <i class="fa fa-chevron-left"></i> linked-list-in-C
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/03/19/baremetal-app-for-RK3288-uboot/" rel="prev" title="[RK3288] 在 Firefly-RK3288 dev board 實作 bare-metal application: 閃爍 LED">
+                [RK3288] 在 Firefly-RK3288 dev board 實作 bare-metal application: 閃爍 LED <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Timmy Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">35</span>
+                  <span class="site-state-item-name">標籤</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/m033010041" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:timmy_post@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="www.linkedin.com/in/Gugeegee" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.facebook.com/profile.php?id=100001387579922" target="_blank" title="Facebook">
+                      
+                        <i class="fa fa-fw fa-facebook"></i>Facebook</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Nand-flash-的基本知識"><span class="nav-number">2.</span> <span class="nav-text">Nand flash 的基本知識</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#flash-的種類"><span class="nav-number">2.1.</span> <span class="nav-text">flash 的種類</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NAND-flash-v-s-NOR-flash"><span class="nav-number">2.2.</span> <span class="nav-text">NAND flash v.s NOR flash</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Page-and-block-and-related-informations"><span class="nav-number">2.3.</span> <span class="nav-text">Page and block and related informations</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#相關專有名詞"><span class="nav-number">2.3.1.</span> <span class="nav-text">相關專有名詞</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#how-to-read-write"><span class="nav-number">2.3.2.</span> <span class="nav-text">how to read write</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Life-cycle"><span class="nav-number">2.3.3.</span> <span class="nav-text">Life cycle</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Bad-block"><span class="nav-number">2.3.4.</span> <span class="nav-text">Bad block</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#ECC-OOB"><span class="nav-number">2.3.5.</span> <span class="nav-text">ECC / OOB</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#BBT"><span class="nav-number">2.3.6.</span> <span class="nav-text">BBT</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Porting-and-test-nand-flash-on-embedded-linux-platform"><span class="nav-number">3.</span> <span class="nav-text">Porting and test nand flash on embedded linux platform</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#U-boot"><span class="nav-number">3.1.</span> <span class="nav-text">U-boot</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Kernel"><span class="nav-number">3.2.</span> <span class="nav-text">Kernel</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Porting-drivers"><span class="nav-number">3.2.1.</span> <span class="nav-text">Porting drivers</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Define-nand-flash-partition-MTD"><span class="nav-number">3.2.2.</span> <span class="nav-text">Define nand flash partition (MTD)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#What-is-MTD"><span class="nav-number">3.3.</span> <span class="nav-text">What is MTD?</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Related-nand-flash-issues-or-problems-in-my-work-experience"><span class="nav-number">4.</span> <span class="nav-text">Related nand flash issues or problems in my work experience</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Problem-Get-oops-while-ramdisk-while-running-flash-eraseall"><span class="nav-number">4.1.</span> <span class="nav-text">Problem: Get oops while ramdisk while running flash_eraseall</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Analyze-problem"><span class="nav-number">4.1.1.</span> <span class="nav-text">Analyze problem</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Solved-skill"><span class="nav-number">4.1.2.</span> <span class="nav-text">Solved skill</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#BENAND"><span class="nav-number">5.</span> <span class="nav-text">BENAND</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#subpage"><span class="nav-number">6.</span> <span class="nav-text">subpage</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#What-is-nand-torture"><span class="nav-number">7.</span> <span class="nav-text">What is nand torture?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Related-datasheet-TC58NVG1S3HTA00"><span class="nav-number">8.</span> <span class="nav-text">Related datasheet: TC58NVG1S3HTA00</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timmy Liu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 強力驅動</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主題 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

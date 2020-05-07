@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-tw">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Timmy的軟韌體開發筆記" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="前言linked list 算是資料結構中，需要花時間，但是又非常重要的學習內容 花時間不只是要理解整個結構，而是要對於指標運算以及 struct 型態的靈活運用要有一定程度的瞭解才可以學會她 自己對這塊也有點遺忘，上班後也比較少用，不過剛好藉面試準備的機會，重新複習一下，可能對未來工作使用，或是在某方面有人使用這種方式解決一些問題，都可以更快的步入節奏中">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linked-list-in-C">
+<meta property="og:url" content="https://m033010041.github.io/2020/02/28/linked-list-in-C/index.html">
+<meta property="og:site_name" content="Timmy的軟韌體開發筆記">
+<meta property="og:description" content="前言linked list 算是資料結構中，需要花時間，但是又非常重要的學習內容 花時間不只是要理解整個結構，而是要對於指標運算以及 struct 型態的靈活運用要有一定程度的瞭解才可以學會她 自己對這塊也有點遺忘，上班後也比較少用，不過剛好藉面試準備的機會，重新複習一下，可能對未來工作使用，或是在某方面有人使用這種方式解決一些問題，都可以更快的步入節奏中">
+<meta property="og:locale" content="zh-tw">
+<meta property="og:image" content="https://m033010041.github.io/2020/02/28/linked-list-in-C/Linkedlist_deletion.png">
+<meta property="og:updated_time" content="2020-03-25T02:02:07.085Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="linked-list-in-C">
+<meta name="twitter:description" content="前言linked list 算是資料結構中，需要花時間，但是又非常重要的學習內容 花時間不只是要理解整個結構，而是要對於指標運算以及 struct 型態的靈活運用要有一定程度的瞭解才可以學會她 自己對這塊也有點遺忘，上班後也比較少用，不過剛好藉面試準備的機會，重新複習一下，可能對未來工作使用，或是在某方面有人使用這種方式解決一些問題，都可以更快的步入節奏中">
+<meta name="twitter:image" content="https://m033010041.github.io/2020/02/28/linked-list-in-C/Linkedlist_deletion.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '作者'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://m033010041.github.io/2020/02/28/linked-list-in-C/">
+
+
+
+
+
+  <title>linked-list-in-C | Timmy的軟韌體開發筆記</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Timmy的軟韌體開發筆記</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">累積經驗，分享經驗</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            標籤
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            歸檔
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://m033010041.github.io/2020/02/28/linked-list-in-C/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Timmy Liu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timmy的軟韌體開發筆記">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">linked-list-in-C</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2020-02-28T19:07:19+08:00">
+                2020-02-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>linked list 算是資料結構中，需要花時間，但是又非常重要的學習內容</p>
+<p>花時間不只是要理解整個結構，而是要對於指標運算以及 <code>struct</code> 型態的靈活運用要有一定程度的瞭解才可以學會她</p>
+<p>自己對這塊也有點遺忘，上班後也比較少用，不過剛好藉面試準備的機會，重新複習一下，可能對未來工作使用，或是在某方面有人使用這種方式解決一些問題，都可以更快的步入節奏中</p>
+<a id="more"></a>
+<h2 id="Linked-list-與-Array-的比較"><a href="#Linked-list-與-Array-的比較" class="headerlink" title="Linked list 與 Array 的比較"></a>Linked list 與 Array 的比較</h2><ol>
+<li><p>The size of the arrays is fixed: So we must know the upper limit on the number of elements in advance. Also, generally, the allocated memory is equal to the upper limit irrespective of the usage.</p>
+</li>
+<li><p>Inserting a new element in an array of elements is expensive because the room has to be created for the new elements and to create room existing elements have to be shifted.</p>
+</li>
+</ol>
+<ul>
+<li>Advantages over arrays<ul>
+<li>Dynamic size</li>
+<li>Ease of insertion/deletion</li>
+</ul>
+</li>
+<li>Drawbacks<ul>
+<li>Random access is not allowed. We have to access elements sequentially starting from the first node. So we cannot do binary search with linked lists efficiently with its default implementation. Read about it here.</li>
+<li>Extra memory space for a pointer is required with each element of the list.</li>
+<li>Not cache friendly. Since array elements are contiguous locations, there is locality of reference which is not there in case of linked lists.</li>
+</ul>
+</li>
+</ul>
+<h2 id="單向-linked-list"><a href="#單向-linked-list" class="headerlink" title="單向 linked list"></a>單向 linked list</h2><p>先了解 單向 linked list 的結構</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">  |-----+-----|        |-----+-----|        |-----+-----|</span><br><span class="line">  |     |     | -----&gt; |     |     | -----&gt; |     |     | -----&gt; NULL</span><br><span class="line">  |-----+-----|        |-----+-----|        |-----+-----|</span><br><span class="line">Head      next1        next1    next2       next2   null</span><br></pre></td></tr></table></figure>
+<h3 id="Prototype"><a href="#Prototype" class="headerlink" title="Prototype"></a>Prototype</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* define a NODE structure */</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> _<span class="title">NODE</span> &#123;</span></span><br><span class="line">    DATA data;</span><br><span class="line">    _NODE *next;</span><br><span class="line">&#125;NODE;</span><br></pre></td></tr></table></figure>
+<h3 id="Create-a-node"><a href="#Create-a-node" class="headerlink" title="Create a node"></a>Create a node</h3><p>使用 <code>malloc()</code> 來產生一個 node</p>
+<p>理論就是產生一個 node 空間，空間的位址存給 <code>Head</code><br><code>next</code> 指到 <code>NULL</code></p>
+<p>像這樣</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    NODE *head = <span class="literal">NULL</span>;</span><br><span class="line">    head = (NODE *)<span class="built_in">malloc</span>(<span class="number">1</span>*<span class="keyword">sizeof</span>(NODE));</span><br><span class="line"></span><br><span class="line">    head-&gt;data = INITIAL_DATA;</span><br><span class="line">    head-&gt;next = <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Insert-a-node"><a href="#Insert-a-node" class="headerlink" title="Insert a node"></a>Insert a node</h3><p>同樣的理論，使用 <code>malloc()</code> 產生空間，之後產生的空間，必須存放在上一個的 node 的 next 之中，並且當下的 node 中的 next 要存下一個 node 的 pointer address<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">insertNode</span><span class="params">(struct Node* n, struct DATA datain)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">/* Create a space */</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Node</span>* <span class="title">insertptr</span> = (<span class="title">struct</span> <span class="title">Node</span>*)<span class="title">malloc</span>(<span class="title">sizeof</span>(<span class="title">struct</span> <span class="title">Node</span>));</span></span><br><span class="line">    <span class="comment">/* store data */</span></span><br><span class="line">    insertptr-&gt;data = datain;</span><br><span class="line">    <span class="comment">/* if you insert a node, previous node's next address have to be store to inserted node */</span></span><br><span class="line">    insertptr-&gt;next = n-&gt;next;</span><br><span class="line">    <span class="comment">/* and previous node's next have to point to insert node */</span></span><br><span class="line">    n-&gt;next = insertptr;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 透過剛剛的 main() 執行 */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    NODE *head = <span class="literal">NULL</span>;</span><br><span class="line">    head = (NODE *)<span class="built_in">malloc</span>(<span class="number">1</span>*<span class="keyword">sizeof</span>(NODE));</span><br><span class="line"></span><br><span class="line">    head-&gt;data = INITIAL_DATA;</span><br><span class="line">    head-&gt;next = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    insertNode(head, datain);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>這樣的動作，如果知道你的其中一個 node 的位址，就可以用上述的 <code>insertNode()</code> 從中插入一個新的節點</p>
+<h3 id="Insert-node-延伸：push-and-cat-append"><a href="#Insert-node-延伸：push-and-cat-append" class="headerlink" title="Insert node 延伸：push and cat (append)"></a>Insert node 延伸：push and cat (append)</h3><p>還記得 push 是什麼嗎？push 就是將新的資料放到 queue 的最前面，其他都順道往後退一格</p>
+<p>所以 push 的做法就只要將新的 node 中的 <code>next</code> 指到 原本的 <code>head</code> 並且 renew 真正的 <code>head</code></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">push</span><span class="params">(struct NODE** orig_head, struct DATA datain)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">NODE</span>* <span class="title">newnode</span> = (<span class="title">struct</span> <span class="title">NODE</span>*)<span class="title">malloc</span>(<span class="title">sizeof</span>(<span class="title">struct</span> <span class="title">NODE</span>));</span></span><br><span class="line"></span><br><span class="line">    newnode-&gt;data = datain;</span><br><span class="line">    <span class="comment">/* set new node's next ptr */</span></span><br><span class="line">    newnode-&gt;next = *orig_head;</span><br><span class="line">    <span class="comment">/* renew new head */</span></span><br><span class="line">    *orig_head = newnode;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而 cat (append) 則是將資料放到最後一個，並將新的 node 中的 <code>next</code> 指到 <code>NULL</code><br>同理，可以寫成<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">cat</span><span class="params">(struct NODE** last_node, struct DATA datain)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">NODE</span>* <span class="title">newnode</span> = (<span class="title">struct</span> <span class="title">NODE</span>*)<span class="title">malloc</span>(<span class="title">sizeof</span>(<span class="title">struct</span> <span class="title">NODE</span>);</span></span><br><span class="line"></span><br><span class="line">    newnode-&gt;data = datain;</span><br><span class="line">    <span class="comment">/* update last node next */</span></span><br><span class="line">    *last_node-&gt;next = newnode;</span><br><span class="line">    <span class="comment">/* point new node next to NULL */</span></span><br><span class="line">    newnode-&gt;next = <span class="literal">NULL</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>但這樣其實很鳥，因為你怎麼知道 <code>last_node</code> 是哪一個，所以其實要 search 到 last_node 才對</p>
+<p>所以要修改成<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">cat</span><span class="params">(struct NODE** head_ref, struct DATA datain)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">NODE</span>* <span class="title">newnode</span> = (<span class="title">struct</span> <span class="title">NODE</span>*)<span class="title">malloc</span>(<span class="title">sizeof</span>(<span class="title">struct</span> <span class="title">NODE</span>);</span></span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">NODE</span>* <span class="title">last</span> = *<span class="title">head_ref</span>;</span></span><br><span class="line"></span><br><span class="line">    newnode-&gt;data = datain;</span><br><span class="line">    <span class="comment">/* point new node next to NULL */</span></span><br><span class="line">    newnode-&gt;next = <span class="literal">NULL</span>;</span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* Check head */</span></span><br><span class="line">    <span class="keyword">if</span> (*head_ref == <span class="literal">NULL</span>)</span><br><span class="line">        *head_ref = newnode;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* find last node address */</span></span><br><span class="line">    <span class="keyword">while</span> (last-&gt;next != <span class="literal">NULL</span>)</span><br><span class="line">        last = last-&gt;next; </span><br><span class="line">    </span><br><span class="line">    <span class="comment">/* update last node next */</span></span><br><span class="line">    last-&gt;next = newnode;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="Delete-a-node"><a href="#Delete-a-node" class="headerlink" title="Delete a node"></a>Delete a node</h3><p>刪除 node 就是 insert node ，做相反的動作</p>
+<p>Geeksforgeeks 給予得很有幫助的圖片 (source: <a href="https://www.geeksforgeeks.org/linked-list-set-3-deleting-node/" target="_blank" rel="noopener">https://www.geeksforgeeks.org/linked-list-set-3-deleting-node/</a>)</p>
+<p><img src="/2020/02/28/linked-list-in-C/Linkedlist_deletion.png" alt=""></p>
+<p>所以用顛倒的想法，就可以大概寫出來</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">delete_node</span><span class="params">(struct NODE** priv)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">NODE</span>* <span class="title">tmp</span> = (*<span class="title">priv</span>)-&gt;<span class="title">next</span>;</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (tmp != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        (*priv)-&gt;next = tmp-&gt;next;</span><br><span class="line">        <span class="built_in">free</span>(tmp);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>這個大概就是基本的刪除方式，其實也是很容易拉</p>
+<p>之後我們就加上 search data 並且如果在 list 中有遇到的都刪掉</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">delete_node_by_key</span><span class="params">(struct NODE ** priv, <span class="keyword">int</span> key)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/02/28/bitwise-operation-in-C/" rel="next" title="[C 語言] Bitwise operation note">
+                <i class="fa fa-chevron-left"></i> [C 語言] Bitwise operation note
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/02/29/nandflash-related-knowledge/" rel="prev" title="Porting NAND flash 實作中的相關知識筆記">
+                Porting NAND flash 實作中的相關知識筆記 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Timmy Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">35</span>
+                  <span class="site-state-item-name">標籤</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/m033010041" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:timmy_post@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="www.linkedin.com/in/Gugeegee" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.facebook.com/profile.php?id=100001387579922" target="_blank" title="Facebook">
+                      
+                        <i class="fa fa-fw fa-facebook"></i>Facebook</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Linked-list-與-Array-的比較"><span class="nav-number">2.</span> <span class="nav-text">Linked list 與 Array 的比較</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#單向-linked-list"><span class="nav-number">3.</span> <span class="nav-text">單向 linked list</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Prototype"><span class="nav-number">3.1.</span> <span class="nav-text">Prototype</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Create-a-node"><span class="nav-number">3.2.</span> <span class="nav-text">Create a node</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Insert-a-node"><span class="nav-number">3.3.</span> <span class="nav-text">Insert a node</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Insert-node-延伸：push-and-cat-append"><span class="nav-number">3.4.</span> <span class="nav-text">Insert node 延伸：push and cat (append)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Delete-a-node"><span class="nav-number">3.5.</span> <span class="nav-text">Delete a node</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timmy Liu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 強力驅動</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主題 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

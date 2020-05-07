@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-tw">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="interview,面試,Phison,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Timmy的軟韌體開發筆記" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="面試不外乎要準備自介、履歷、工作經驗、白板題、以及碩碖與作品集等等 當然最令人擔心的，當然還是會讓人緊張的白板題 以下會先練習一下網路看到的題目以及想不出來時，探討最後找到的答案 我們立即開始吧！！">
+<meta name="keywords" content="interview,面試,Phison">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[面試] 群聯面試前練習：群聯三題">
+<meta property="og:url" content="https://m033010041.github.io/2020/02/18/phison-interview-practice/index.html">
+<meta property="og:site_name" content="Timmy的軟韌體開發筆記">
+<meta property="og:description" content="面試不外乎要準備自介、履歷、工作經驗、白板題、以及碩碖與作品集等等 當然最令人擔心的，當然還是會讓人緊張的白板題 以下會先練習一下網路看到的題目以及想不出來時，探討最後找到的答案 我們立即開始吧！！">
+<meta property="og:locale" content="zh-tw">
+<meta property="og:updated_time" content="2020-02-28T11:07:51.021Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[面試] 群聯面試前練習：群聯三題">
+<meta name="twitter:description" content="面試不外乎要準備自介、履歷、工作經驗、白板題、以及碩碖與作品集等等 當然最令人擔心的，當然還是會讓人緊張的白板題 以下會先練習一下網路看到的題目以及想不出來時，探討最後找到的答案 我們立即開始吧！！">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '作者'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://m033010041.github.io/2020/02/18/phison-interview-practice/">
+
+
+
+
+
+  <title>[面試] 群聯面試前練習：群聯三題 | Timmy的軟韌體開發筆記</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Timmy的軟韌體開發筆記</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">累積經驗，分享經驗</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            標籤
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            歸檔
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://m033010041.github.io/2020/02/18/phison-interview-practice/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Timmy Liu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timmy的軟韌體開發筆記">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">[面試] 群聯面試前練習：群聯三題</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2020-02-18T22:40:42+08:00">
+                2020-02-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>面試不外乎要準備自介、履歷、工作經驗、白板題、以及碩碖與作品集等等</p>
+<p>當然最令人擔心的，當然還是會讓人緊張的白板題</p>
+<p>以下會先練習一下網路看到的題目以及想不出來時，探討最後找到的答案</p>
+<p>我們立即開始吧！！</p>
+<a id="more"></a>
+<h2 id="知名的「群聯面試三題」"><a href="#知名的「群聯面試三題」" class="headerlink" title="知名的「群聯面試三題」"></a>知名的「群聯面試三題」</h2><p>Q1: 給一個int a[20]已排序的陣列，請寫一個function(a, size)能印出0~500的數字，且不包含a陣列內的元素，請用最少的時間和空間複雜度完成。 </p>
+<p>這個就照著題目的描述寫程式就可以了<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* You may call function through function(a, size) */</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">function</span><span class="params">(<span class="keyword">int</span> *in, <span class="keyword">int</span> size)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> *ptr = in;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">for</span> (i=<span class="number">0</span>; i&lt;=<span class="number">500</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (*ptr == i)</span><br><span class="line">	    ptr++;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	    <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>Q2: 給一個int a[20]已排序的陣列，請寫一個function(a, size, b)能依照參數b(b = 0~4)別印出該區間的數字，且不包含a陣列內的元素，例如：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">　b = 0, 印出0~99</span><br><span class="line">　b = 1, 印出100~199</span><br><span class="line">　...</span><br></pre></td></tr></table></figure></p>
+<p>請用最少的時間和空間複雜度完成。</p>
+<p>這個呢？就還是一樣，照著描述寫</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">function</span><span class="params">(<span class="keyword">int</span> *a, <span class="keyword">int</span> size, <span class="keyword">int</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> *ptr = a;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (*ptr &lt; b * <span class="number">100</span>)</span><br><span class="line">        ptr++;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (i=b*<span class="number">100</span>; i&lt;(b+<span class="number">1</span>)*<span class="number">100</span>; i++) &#123;</span><br><span class="line">        <span class="keyword">if</span> (*ptr == i)</span><br><span class="line">	    ptr++;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	    <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, i);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Q3: 情境題，給予一個 structure</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ListStruct</span>&#123;</span></span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> DataH;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> DataL;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">int</span> NextPtr;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ListStruct</span> <span class="title">ListArray</span>[1000];</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> NULL 0xFFFF</span></span><br><span class="line"><span class="keyword">unsigned</span> <span class="keyword">int</span> ListHead = <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<p>其中有兩個條件</p>
+<ul>
+<li>條件一<br><code>ListArray[Entry1].NextPtr = ListArray[Entry2]</code></li>
+<li>條件二<br><code>ListArray[Entry2].DataH &lt;&lt; 16 + ListArray[Entry2].DataL &gt; ListArray[Entry1].DataH &lt;&lt; 16 + ListArray[Entry1].DataL</code></li>
+</ul>
+<p>也就是說第一個 index 中的 <code>NextPtr</code> 會只到另一個 index 中的起始位址<br>再來是另一個 index 中的起始位址的資料內容大小一定大於原起始資料的大小</p>
+<p>請寫一個function(unsigned int DATA_A, unsigned int DATA_B)，<br>能在ListArray中找到符合ListArray[Entry].DataH == Data_A 且 ListArray[Entry].DataL == Data_B<br>並印出其結果。如果沒有找到的話，印出”no found.”。</p>
+<p>okay, 我們根據問題描述，將程式寫出來</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">Q3</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> DATA_A, <span class="keyword">unsigned</span> <span class="keyword">int</span> DATA_B)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> found_entry = ListHead;</span><br><span class="line">    <span class="keyword">int</span> pre_entry = <span class="literal">NULL</span>;</span><br><span class="line">    <span class="keyword">int</span> next_entry = <span class="literal">NULL</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">while</span> (ListArray[found_entry].NextPtr != <span class="literal">NULL</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (ListArray[found_entry].DataH == DATA_A &amp;&amp; ListArray[found_entry].DataL == DATA_B) &#123;</span><br><span class="line">	    <span class="keyword">if</span> (pre_entry == <span class="literal">NULL</span>)</span><br><span class="line">	        <span class="built_in">printf</span>(<span class="string">"pre_entry = NULL, found_entry = ListHead\n"</span>);</span><br><span class="line">            <span class="keyword">else</span></span><br><span class="line">	        <span class="built_in">printf</span>(<span class="string">"pre_entry = %d, found_entry = %d"</span>, pre_entry, found_entry);</span><br><span class="line">	    <span class="built_in">printf</span>(<span class="string">"found it\n"</span>);</span><br><span class="line"></span><br><span class="line">	    next_entry = ListArray[found_entry].NextPtr;</span><br><span class="line">	    <span class="keyword">if</span> (ListArray[next_entry].DataH &lt;&lt; <span class="number">16</span> + ListArray[next_entry].DataL &gt;</span><br><span class="line">	        DATA_A &lt;&lt; <span class="number">16</span> + DATA_B)</span><br><span class="line">		<span class="keyword">break</span>;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	pre_entry = found_entry;</span><br><span class="line">	found_entry = ListArray[found_entry].NextPtr;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="其餘在面試中會可能會抽考的題目"><a href="#其餘在面試中會可能會抽考的題目" class="headerlink" title="其餘在面試中會可能會抽考的題目"></a>其餘在面試中會可能會抽考的題目</h2><h3 id="Sorting"><a href="#Sorting" class="headerlink" title="Sorting"></a>Sorting</h3><p>接下來是 sorting</p>
+<p>直接寫 quick sort 好了<br><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">swap</span><span class="params">(<span class="keyword">int</span> *a, <span class="keyword">int</span> *b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> tmp;</span><br><span class="line">    tmp = *a;</span><br><span class="line">    *a = *b;</span><br><span class="line">    *b = tmp;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">QuickSort</span><span class="params">(<span class="keyword">int</span> *<span class="built_in">array</span>, <span class="keyword">int</span> left, <span class="keyword">int</span> right)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (left &lt; right) &#123;</span><br><span class="line">        <span class="keyword">int</span> i= left<span class="number">-1</span>, j=right+<span class="number">1</span>;</span><br><span class="line">        <span class="keyword">int</span> mid = info[(left+right)/<span class="number">2</span>].signal_level;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">            <span class="keyword">while</span>(info[++i].signal_level &gt; mid);</span><br><span class="line">            <span class="keyword">while</span>(info[--j].signal_level &lt; mid);</span><br><span class="line"></span><br><span class="line">            <span class="keyword">if</span> (i&gt;=j)</span><br><span class="line">                <span class="keyword">break</span>;</span><br><span class="line"></span><br><span class="line">            swap(info, i, j);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        QuickSort(info, left, i<span class="number">-1</span>);</span><br><span class="line">        QuickSort(info, j+<span class="number">1</span>, right);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h2 id="工作經驗中可能會考的內容"><a href="#工作經驗中可能會考的內容" class="headerlink" title="工作經驗中可能會考的內容"></a>工作經驗中可能會考的內容</h2><h3 id="Page-Block-Read-Write-等等的概念"><a href="#Page-Block-Read-Write-等等的概念" class="headerlink" title="Page / Block / Read / Write 等等的概念"></a>Page / Block / Read / Write 等等的概念</h3><h2 id="想問的問題"><a href="#想問的問題" class="headerlink" title="想問的問題"></a>想問的問題</h2><ol>
+<li><p>PCIE 這麼高速的介面，在傳輸中可能會造成那些影響？</p>
+</li>
+<li><p>NAND flash 看過有人直接取走的，取走後是不是有辦法透過特殊加解密使得資料無法被竊取？</p>
+</li>
+<li><p>公司有給予員工進修的福利嗎？</p>
+</li>
+<li><p>群聯這樣的公司，理論上會有許多核心技術取得，公司</p>
+</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/interview/" rel="tag"># interview</a>
+          
+            <a href="/tags/面試/" rel="tag"># 面試</a>
+          
+            <a href="/tags/Phison/" rel="tag"># Phison</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/01/14/TLPI-thread-safty/" rel="next" title="[讀書心得] The Linux Programming Interface 第 31 章：執行緒安全與個別執行緒儲存空間">
+                <i class="fa fa-chevron-left"></i> [讀書心得] The Linux Programming Interface 第 31 章：執行緒安全與個別執行緒儲存空間
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/02/19/ubiquiti-interview-part1/" rel="prev" title="[面試] Ubiquiti Skype interview">
+                [面試] Ubiquiti Skype interview <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Timmy Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">35</span>
+                  <span class="site-state-item-name">標籤</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/m033010041" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:timmy_post@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="www.linkedin.com/in/Gugeegee" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.facebook.com/profile.php?id=100001387579922" target="_blank" title="Facebook">
+                      
+                        <i class="fa fa-fw fa-facebook"></i>Facebook</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#知名的「群聯面試三題」"><span class="nav-number">1.</span> <span class="nav-text">知名的「群聯面試三題」</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其餘在面試中會可能會抽考的題目"><span class="nav-number">2.</span> <span class="nav-text">其餘在面試中會可能會抽考的題目</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Sorting"><span class="nav-number">2.1.</span> <span class="nav-text">Sorting</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#工作經驗中可能會考的內容"><span class="nav-number">3.</span> <span class="nav-text">工作經驗中可能會考的內容</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Page-Block-Read-Write-等等的概念"><span class="nav-number">3.1.</span> <span class="nav-text">Page / Block / Read / Write 等等的概念</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#想問的問題"><span class="nav-number">4.</span> <span class="nav-text">想問的問題</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timmy Liu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 強力驅動</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主題 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

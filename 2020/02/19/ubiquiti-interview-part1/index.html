@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-tw">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="interview,面試,Ubiquiti,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Timmy的軟韌體開發筆記" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="準備一下要怎麼面優比快吧！ 優比快是我心目中目前蠻想進去的公司之一 不過聽說內部的節奏快，做事獨立，部門分工少，解決問題的速度要很快 投遞履歷Ubiquiti 這間公司之前就有聽過，不過訊息太少，從 Tech_Job / Soft_Job 板也無法取得太多的資訊直到 Kelly Service Corp. 的人傳了 LinkedIn 私訊給我透過電話面試了一下大概了解工作內容之後，就將履歷透過 K">
+<meta name="keywords" content="interview,面試,Ubiquiti">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[面試] Ubiquiti Skype interview">
+<meta property="og:url" content="https://m033010041.github.io/2020/02/19/ubiquiti-interview-part1/index.html">
+<meta property="og:site_name" content="Timmy的軟韌體開發筆記">
+<meta property="og:description" content="準備一下要怎麼面優比快吧！ 優比快是我心目中目前蠻想進去的公司之一 不過聽說內部的節奏快，做事獨立，部門分工少，解決問題的速度要很快 投遞履歷Ubiquiti 這間公司之前就有聽過，不過訊息太少，從 Tech_Job / Soft_Job 板也無法取得太多的資訊直到 Kelly Service Corp. 的人傳了 LinkedIn 私訊給我透過電話面試了一下大概了解工作內容之後，就將履歷透過 K">
+<meta property="og:locale" content="zh-tw">
+<meta property="og:updated_time" content="2020-02-23T04:36:38.610Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[面試] Ubiquiti Skype interview">
+<meta name="twitter:description" content="準備一下要怎麼面優比快吧！ 優比快是我心目中目前蠻想進去的公司之一 不過聽說內部的節奏快，做事獨立，部門分工少，解決問題的速度要很快 投遞履歷Ubiquiti 這間公司之前就有聽過，不過訊息太少，從 Tech_Job / Soft_Job 板也無法取得太多的資訊直到 Kelly Service Corp. 的人傳了 LinkedIn 私訊給我透過電話面試了一下大概了解工作內容之後，就將履歷透過 K">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '作者'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://m033010041.github.io/2020/02/19/ubiquiti-interview-part1/">
+
+
+
+
+
+  <title>[面試] Ubiquiti Skype interview | Timmy的軟韌體開發筆記</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Timmy的軟韌體開發筆記</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">累積經驗，分享經驗</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            標籤
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            歸檔
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://m033010041.github.io/2020/02/19/ubiquiti-interview-part1/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Timmy Liu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timmy的軟韌體開發筆記">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">[面試] Ubiquiti Skype interview</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2020-02-19T01:14:51+08:00">
+                2020-02-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>準備一下要怎麼面優比快吧！</p>
+<p>優比快是我心目中目前蠻想進去的公司之一</p>
+<p>不過聽說內部的節奏快，做事獨立，部門分工少，解決問題的速度要很快</p>
+<h2 id="投遞履歷"><a href="#投遞履歷" class="headerlink" title="投遞履歷"></a>投遞履歷</h2><p>Ubiquiti 這間公司之前就有聽過，不過訊息太少，從 Tech_Job / Soft_Job 板也無法取得太多的資訊<br>直到 Kelly Service Corp. 的人傳了 LinkedIn 私訊給我<br>透過電話面試了一下<br>大概了解工作內容之後，就將履歷透過 Kelly Service Corp. 轉成推薦函寄出</p>
+<p>但許久沒有回覆，所以我自行親上 LinkedIn 投遞履歷<br>大概一週後，人資寄信給我，這位人資是之前在 google nest 就職，光資歷就覺得非常厲害<br>我最後就答應要進行電話訪談</p>
+<a id="more"></a>
+<h2 id="面試內容"><a href="#面試內容" class="headerlink" title="面試內容"></a>面試內容</h2><p>我是投遞 Taipei 總部的 Embedded Firmware Engineer position<br>看其內容主要就是做 bring up linux drivers, network configuration 相關的程式設計<br>反正我們公司大概都有做過，就沒有問太詳細的內容<br>這也是我這次面試「應該要先問但是沒有先問」，造成準備不足的主因</p>
+<p>主要關卡有</p>
+<ul>
+<li>Phone review</li>
+<li>Skype interview</li>
+<li>On-site interview</li>
+<li>Technical manager interview</li>
+<li>Offer review</li>
+<li>CEO approval</li>
+</ul>
+<h3 id="Phone-interview"><a href="#Phone-interview" class="headerlink" title="Phone interview"></a>Phone interview</h3><p>這個真的不用緊張，只是要問一下小問題而已</p>
+<ul>
+<li>現在狀況：還在職嗎？在職後何時可以提出離職申請？上班許可的時間？目前主要做的領域？預期薪資？</li>
+<li>離職原因</li>
+<li>對現在的公司有沒有不滿的地方</li>
+</ul>
+<p>然後透過電話說明這次徵求人，以及大概公司狀況</p>
+<p>然後你也可以問問題，像我就問</p>
+<ul>
+<li>這間公司評價兩極 Glassdoor 有目共睹，您怎麼看？<ul>
+<li>Glassdoor 形形色色的人很多，每個人都有不同的考量，但待遇理論上是不會有問題的，公司本來就是要保留有能力的人，當然老闆的個性就是這樣，所以有人對老闆不滿也是正常，參考就好 </li>
+</ul>
+</li>
+<li>流動率大概多快<ul>
+<li>大概兩三年，有時候是整個 team 被挖走</li>
+</ul>
+</li>
+<li>這間公司是不是有機會跟國外的工程師合作？<ul>
+<li>要看公司部門 </li>
+</ul>
+</li>
+<li>這間公司工作時間是不是會不穩定，要配合國外運作？<ul>
+<li>不會，理論上不會凌晨被公司叫回去，但公司的確是責任制</li>
+</ul>
+</li>
+<li>有其他問題可以寄信問您嗎？<ul>
+<li>No problem</li>
+</ul>
+</li>
+</ul>
+<p>大概就這樣，電話面談結束</p>
+<h3 id="Skype-interview"><a href="#Skype-interview" class="headerlink" title="Skype interview"></a>Skype interview</h3><p>之後人資就透過 e-mail 與我討論 Skype interview 的時間，對象是 Hiring manager</p>
+<p>可能是我太久沒有面試，我都忘記問最重要的一環<br>一定記得要問人資「這個職缺是專門做哪個產品線的」<br>不同產品所要的技術 knowhow，是不一樣的，因為我們公司所做的東西都不是太深，所以如果是對於特定產品的 knowhow 可能都要準備，才會知道怎麼應答。</p>
+<p>接下來 Skype interview 開始了，約在週三上午</p>
+<p>主管是用語音而已，沒有透過視訊方式</p>
+<p>問的問題也很容易，就是問工作的內容，做過哪些經驗，產品的內容，還有遇到什麼問題與解決辦法</p>
+<p>不過已經是工作三年經驗的老鳥，當人問的問題就變得很專一</p>
+<ul>
+<li>自我介紹一下</li>
+<li>做過什麼產品</li>
+<li>產品內部的硬體規劃、軟體設計與維護的分派是怎麼運作的</li>
+<li>有碰過網路韌體相關的設計與開發嗎？</li>
+<li>那顆晶片你有設定過哪些東西？</li>
+<li>你會 bootloader / kernel / rootfs 各種領域，你曾經對這些部分做過怎麼樣的開發與設計呢？</li>
+<li>你有對 ethernet switch 有相關的設計經驗嗎？開發的過程是如何呢？</li>
+<li>公司對於 code review 的態度是什麼？維護方式與改進方式？</li>
+<li>有沒有對我的部門或是整間公司有什麼問題？</li>
+</ul>
+<p>大概就是這樣，因為我對 ethernet switch 開發並不是到非常熟悉，但的確有 porting switch driver 於產品中<br>我只能對我這部分的技能告知給主管，之後主管說「若有 On-site interview，我會請人資再發邀請給您」</p>
+<h3 id="心得"><a href="#心得" class="headerlink" title="心得"></a>心得</h3><p>已經過了兩天，之前人資認為 on-site interview 會在下週舉辦，週五看起來是通知最後一天，沒有通知的話理論上就是被刷掉了<br>不過也知道自己缺了什麼，也知道雖然你做的領域很廣，但是在特定產品中，你一定要針對那些特定產品花一點時間了解一下你做過的細節，因為你並不是原本就是做這個東西的人，所以一定對此領域很陌生。</p>
+<h3 id="備註：自我介紹內容"><a href="#備註：自我介紹內容" class="headerlink" title="備註：自我介紹內容"></a>備註：自我介紹內容</h3><p>當然不是照稿念，但是大概就是這些內容：</p>
+<p>您好，我是劉安庭，目前在 WEINTEK LABS., INC 的 System OS R&amp;D Department 擔任 Software Engineer 的職位，至今在公司工作約三年四個月，我主要的工作內容是開發工業人機介面的專用作業系統，到今年二月初已經完成了五個專案的作業系統開發，目前已經開發第六個產品(這個產品的 leader 不是我)。每一個作業系統都涵蓋著 硬體測試，開機啟動流程，作業系統核心，檔案系統等部分。目前主要負責公司的工業物聯網閘道器系列產品的作業系統開發與維護。</p>
+<p>工作內容包含了：</p>
+<ol>
+<li>porting bootloader</li>
+<li>porting kernel drivers</li>
+<li>相關的 rootfs 開發與維護</li>
+<li>測試硬體狀況</li>
+<li>RMA 分析</li>
+<li>Analyze and Improve OS performance</li>
+</ol>
+<p>我擅長於軟硬體的整合，在就學期間我修習了許多軟硬體相關的課程，並且參與了高雄市 city bike 單車租賃系統的產學合作，底定了我軟硬體整合能力的基礎</p>
+<p>進入職場後，我開始了解 linux 驅動程式的開發，因此這三年的工作時間，除了就學期間的基礎知識之外，也擴展了嵌入式 linux 作業系統的相關能力與知識。並透過大學與研究所所學，研讀相關 IC vendor 所發出來的 datasheet，配合硬體部門進行硬體相關測試，例如提供測試相關軟體給硬體部門完成 CE 與 UL 等標準之相關測試。</p>
+<p>除了硬體相關測試外，接下來就是進行開機啟動流程與作業系統核心開發，這兩部分著重於不同產品會規劃不同的硬體架構，要根據硬體架構去打通硬體與作業系統核心之間的驅動程式，主要是 ic vendor 或是 mainline kernel 所提供的軟體為主，之後依據硬體狀況做相對應的調整。調整並與硬體交叉測試過後，就會進行效能優化。效能優化可以加速啟動速度，增加使用者體驗，目前我最佳的 fine tune 開機時間時將一個 13 秒才啟動完成的機器減少到開機 6 秒，且原本的功能都保留且正常。</p>
+<p>我是一個會主動持續提升工作能力的人，在工作之餘，我會進修嵌入式 linux 的相關知識，因此我會時常更新相關知識與能力，常常去 github 上面研究程式架構，或是查找 linux 的相關書籍。</p>
+<p>我樂於分享與溝通，在工作期間所遇到的問題，或是開發軟體時的心得，我會整理一份文件給整個團隊看，此外，我還會將自己實作的心得紀錄在個人的技術部落格，除了紀錄在工作期間學習到的技能之外，有同時分享給有<f2>相同問題的人。</f2></p>
+<p>我是一位遇到問題就不會放手的人，目前在公司遇到的種種問題，我都會非常積極地去完成，不論幾點下班，我自己只要進入狀況後就不希望草草了事，讓各種問題都可以找到 root cause ，已減少公司未來出類似問題的可能性</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/interview/" rel="tag"># interview</a>
+          
+            <a href="/tags/面試/" rel="tag"># 面試</a>
+          
+            <a href="/tags/Ubiquiti/" rel="tag"># Ubiquiti</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/02/18/phison-interview-practice/" rel="next" title="[面試] 群聯面試前練習：群聯三題">
+                <i class="fa fa-chevron-left"></i> [面試] 群聯面試前練習：群聯三題
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/02/28/bitwise-operation-in-C/" rel="prev" title="[C 語言] Bitwise operation note">
+                [C 語言] Bitwise operation note <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Timmy Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">35</span>
+                  <span class="site-state-item-name">標籤</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/m033010041" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:timmy_post@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="www.linkedin.com/in/Gugeegee" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.facebook.com/profile.php?id=100001387579922" target="_blank" title="Facebook">
+                      
+                        <i class="fa fa-fw fa-facebook"></i>Facebook</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#投遞履歷"><span class="nav-number">1.</span> <span class="nav-text">投遞履歷</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#面試內容"><span class="nav-number">2.</span> <span class="nav-text">面試內容</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Phone-interview"><span class="nav-number">2.1.</span> <span class="nav-text">Phone interview</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Skype-interview"><span class="nav-number">2.2.</span> <span class="nav-text">Skype interview</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#心得"><span class="nav-number">2.3.</span> <span class="nav-text">心得</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#備註：自我介紹內容"><span class="nav-number">2.4.</span> <span class="nav-text">備註：自我介紹內容</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timmy Liu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 強力驅動</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主題 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>

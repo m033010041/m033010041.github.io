@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-tw">
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Firefly,RK3288,OpenAMP,Rockchip,Coretex-A17,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Timmy的軟韌體開發筆記" type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="前言這個標題可能有點繞口，但主要的動作就是，我們先關閉一顆 cpu，之後我們去 trace smp 相關的程式之後針對 smp 的啟動程序去執行特定的位址，達到該 cpu 啟動後，會自動執行 baremetal application 的成果">
+<meta name="keywords" content="Firefly,RK3288,OpenAMP,Rockchip,Coretex-A17">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[OpenAMP] 嘗試在 Linux user space 執行特定 cpu 的 bare-matal application">
+<meta property="og:url" content="https://m033010041.github.io/2020/03/23/run-baremetal-on-linux-userspace/index.html">
+<meta property="og:site_name" content="Timmy的軟韌體開發筆記">
+<meta property="og:description" content="前言這個標題可能有點繞口，但主要的動作就是，我們先關閉一顆 cpu，之後我們去 trace smp 相關的程式之後針對 smp 的啟動程序去執行特定的位址，達到該 cpu 啟動後，會自動執行 baremetal application 的成果">
+<meta property="og:locale" content="zh-tw">
+<meta property="og:updated_time" content="2020-03-25T02:11:57.500Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[OpenAMP] 嘗試在 Linux user space 執行特定 cpu 的 bare-matal application">
+<meta name="twitter:description" content="前言這個標題可能有點繞口，但主要的動作就是，我們先關閉一顆 cpu，之後我們去 trace smp 相關的程式之後針對 smp 的啟動程序去執行特定的位址，達到該 cpu 啟動後，會自動執行 baremetal application 的成果">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"hide","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '作者'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://m033010041.github.io/2020/03/23/run-baremetal-on-linux-userspace/">
+
+
+
+
+
+  <title>[OpenAMP] 嘗試在 Linux user space 執行特定 cpu 的 bare-matal application | Timmy的軟韌體開發筆記</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope="" itemtype="http://schema.org/WebPage" lang="zh-tw">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope="" itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Timmy的軟韌體開發筆記</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">累積經驗，分享經驗</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首頁
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br>
+            
+            關於
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            標籤
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br>
+            
+            分類
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            歸檔
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope="" itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="https://m033010041.github.io/2020/03/23/run-baremetal-on-linux-userspace/">
+
+    <span hidden itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Timmy Liu">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope="" itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Timmy的軟韌體開發筆記">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">[OpenAMP] 嘗試在 Linux user space 執行特定 cpu 的 bare-matal application</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">發表於</span>
+              
+              <time title="創建於" itemprop="dateCreated datePublished" datetime="2020-03-23T23:16:53+08:00">
+                2020-03-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>這個標題可能有點繞口，但主要的動作就是，我們先關閉一顆 cpu，之後我們去 trace smp 相關的程式<br>之後針對 smp 的啟動程序去執行特定的位址，達到該 cpu 啟動後，會自動執行 baremetal application 的成果</p>
+<a id="more"></a>
+<h1 id="實驗步驟"><a href="#實驗步驟" class="headerlink" title="實驗步驟"></a>實驗步驟</h1><p>首先，我們先分析一下我們 dump 出來的運作流程<br>我們將 message 塞入 <code>platsmp.c</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><span class="line">[    0.126278] rockchip_smp_prepare_cpus: disable core1</span><br><span class="line">[    0.126314] pmu_set_power_domain: rstc address: vir=ee88f7c0</span><br><span class="line">[    0.126327] pmu_set_power_domain:(assert) status=ffffffda</span><br><span class="line">[    0.126353] pmu_set_power_domain: has_pmu!, pmu addr-&gt; vir:ee802a00, PMU_PWRDN_CON=8, result=0x00000002</span><br><span class="line">[    0.126366] pmu_set_power_domain: pmu address: vir=ee802a00</span><br><span class="line">[    0.126375] pmu_set_power_domain: IS_ERR(rtsc) entered</span><br><span class="line">[    0.126385] rockchip_smp_prepare_cpus: disable core2</span><br><span class="line">[    0.126415] pmu_set_power_domain: rstc address: vir=ee88f7c0</span><br><span class="line">[    0.126427] pmu_set_power_domain:(assert) status=ffffffda</span><br><span class="line">[    0.126444] pmu_set_power_domain: has_pmu!, pmu addr-&gt; vir:ee802a00, PMU_PWRDN_CON=8, result=0x00000006</span><br><span class="line">[    0.126457] pmu_set_power_domain: pmu address: vir=ee802a00</span><br><span class="line">[    0.126466] pmu_set_power_domain: IS_ERR(rtsc) entered</span><br><span class="line">[    0.126475] rockchip_smp_prepare_cpus: disable core3</span><br><span class="line">[    0.126505] pmu_set_power_domain: rstc address: vir=ee88f7c0</span><br><span class="line">[    0.126516] pmu_set_power_domain:(assert) status=ffffffda</span><br><span class="line">[    0.126533] pmu_set_power_domain: has_pmu!, pmu addr-&gt; vir:ee802a00, PMU_PWRDN_CON=8, result=0x0000000e</span><br><span class="line">[    0.126545] pmu_set_power_domain: pmu address: vir=ee802a00</span><br><span class="line">[    0.126554] pmu_set_power_domain: IS_ERR(rtsc) entered</span><br><span class="line">[    0.126640] Setting up static identity map for 0x100000 - 0x100058</span><br><span class="line">[    0.128998] rockchip_boot_secondary: cpu core1 start !!</span><br><span class="line">[    0.129047] pmu_set_power_domain: rstc address: vir=ee89b2c0</span><br><span class="line">[    0.129072] pmu_set_power_domain: has_pmu!, pmu addr-&gt; vir:ee802a00, PMU_PWRDN_CON=8, result=0x0000000c</span><br><span class="line">[    0.129085] pmu_set_power_domain: pmu address: vir=ee802a00</span><br><span class="line">[    0.129094] pmu_set_power_domain: IS_ERR(rtsc) entered</span><br><span class="line">[    0.129105] pmu_set_power_domain:(dessert) status=ffffffda</span><br><span class="line">[    0.130295] CPU1: update cpu_capacity 430</span><br><span class="line">[    0.130304] CPU1: thread -1, cpu 1, socket 5, mpidr 80000501</span><br><span class="line">[    0.131072] rockchip_boot_secondary: cpu core2 start !!</span><br><span class="line">[    0.131127] pmu_set_power_domain: rstc address: vir=ee89b640</span><br><span class="line">[    0.131150] pmu_set_power_domain: has_pmu!, pmu addr-&gt; vir:ee802a00, PMU_PWRDN_CON=8, result=0x00000008</span><br><span class="line">[    0.131163] pmu_set_power_domain: pmu address: vir=ee802a00</span><br><span class="line">[    0.131172] pmu_set_power_domain: IS_ERR(rtsc) entered</span><br><span class="line">[    0.131183] pmu_set_power_domain:(dessert) status=ffffffda</span><br><span class="line">[    0.132366] CPU2: update cpu_capacity 430</span><br><span class="line">[    0.132375] CPU2: thread -1, cpu 2, socket 5, mpidr 80000502</span><br><span class="line">[    0.133132] rockchip_boot_secondary: cpu core3 start !!</span><br><span class="line">[    0.133188] pmu_set_power_domain: rstc address: vir=ee89b9c0</span><br><span class="line">[    0.133211] pmu_set_power_domain: has_pmu!, pmu addr-&gt; vir:ee802a00, PMU_PWRDN_CON=8, result=0x00000000</span><br><span class="line">[    0.133224] pmu_set_power_domain: pmu address: vir=ee802a00</span><br><span class="line">[    0.133233] pmu_set_power_domain: IS_ERR(rtsc) entered</span><br><span class="line">[    0.133244] pmu_set_power_domain:(dessert) status=ffffffda</span><br><span class="line">[    0.134427] CPU3: update cpu_capacity 430</span><br><span class="line">[    0.134436] CPU3: thread -1, cpu 3, socket 5, mpidr 80000503</span><br><span class="line">[    0.134566] Brought up 4 CPUs</span><br><span class="line">[    0.134589] SMP: Total of 4 processors activated (192.00 BogoMIPS).</span><br><span class="line">[    0.134599] CPU: All CPU(s) started in SVC mode.</span><br><span class="line">[    0.136426] devtmpfs: initialized</span><br><span class="line">[    0.158885] VFP support v0.3: implementor 41 architecture 3 part 30 variant d rev 0</span><br><span class="line">[    0.159394] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 19112604462750000 ns</span><br><span class="line">[    0.159430] futex hash table entries: 1024 (order: 4, 65536 bytes)</span><br><span class="line">[    0.160754] pinctrl core: initialized pinctrl subsystem</span><br><span class="line">[    0.162142] NET: Registered protocol family 16</span><br><span class="line">[    0.164101] DMA: preallocated 256 KiB pool for atomic coherent allocations</span><br><span class="line">[    0.185908] cpuidle: using governor ladder</span><br><span class="line">[    0.215947] cpuidle: using governor menu</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p><code>rockchip_smp_prepare_cpus()</code>: 這一部份是將 cpu disable，會執行 <code>pmu_set_power_domain(cpu, false)</code> 將除了 0 以外的 core 關閉</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-&gt; pmu_set_power_domain(1, false);</span><br><span class="line">-&gt; pmu_set_power_domain(2, false);</span><br><span class="line">-&gt; pmu_set_power_domain(3, false);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>pmu_set_power_domain(int cpu , int on)</code>: 這部份是將 power domain 關閉或是開啟</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">-&gt; disable cpu N:</span><br><span class="line">    -&gt; assert reset control register (cpu3: set CRU_SOFTRST0_CON bit 3 to 1)</span><br><span class="line">    -&gt; set PMU_PWRDN_CON bit 1 2 3 to 1, 1 is off (0x0 -&gt; 0x2 -&gt; 0x6 -&gt; 0xe)</span><br><span class="line">    -&gt; free reset control register address</span><br><span class="line">-&gt; enable cpu N:</span><br><span class="line">    -&gt; set PMU_PWRDN_CON bit 1 2 3 to 0, 0 is on  (0xe -&gt; 0xc -&gt; 0x8 -&gt; 0x0)</span><br><span class="line">    -&gt; disassert reset control register (cpu3: set CRU_SOFTRST0_CON bit 3 to 0)</span><br><span class="line">    -&gt; free reset control register address</span><br></pre></td></tr></table></figure>
+</li>
+<li><p><code>rockchip_boot_secondary()</code>: enable cpu N 並且將 boot entry 設定到指定位址</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-&gt; pmu_set_power_domain(N, true);</span><br><span class="line">-&gt; sram_base + 8 = pc</span><br><span class="line">-&gt; sram_base + 4 = DEADBEAF</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">static</span> <span class="keyword">int</span> <span class="title">rockchip_boot_secondary</span><span class="params">(<span class="keyword">unsigned</span> <span class="keyword">int</span> cpu, struct task_struct *idle)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="comment">/* ... get pmu base addresss */</span></span><br><span class="line"></span><br><span class="line">        ret = pmu_set_power_domain(<span class="number">0</span> + cpu, <span class="literal">true</span>);</span><br><span class="line">        <span class="keyword">if</span> (ret &lt; <span class="number">0</span>)</span><br><span class="line">                <span class="keyword">return</span> ret;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (read_cpuid_part() != ARM_CPU_PART_CORTEX_A9) &#123;</span><br><span class="line">                <span class="comment">/*</span></span><br><span class="line"><span class="comment">                 * We communicate with the bootrom to active the cpus other</span></span><br><span class="line"><span class="comment">                 * than cpu0, after a blob of initialize code, they will</span></span><br><span class="line"><span class="comment">                 * stay at wfe state, once they are actived, they will check</span></span><br><span class="line"><span class="comment">                 * the mailbox:</span></span><br><span class="line"><span class="comment">                 * sram_base_addr + 4: 0xdeadbeaf</span></span><br><span class="line"><span class="comment">                 * sram_base_addr + 8: start address for pc</span></span><br><span class="line"><span class="comment">                 * The cpu0 need to wait the other cpus other than cpu0 entering</span></span><br><span class="line"><span class="comment">                 * the wfe state.The wait time is affected by many aspects.</span></span><br><span class="line"><span class="comment">                 * (e.g: cpu frequency, bootrom frequency, sram frequency, ...)</span></span><br><span class="line"><span class="comment">                 */</span></span><br><span class="line">                mdelay(<span class="number">1</span>); <span class="comment">/* ensure the cpus other than cpu0 to startup */</span></span><br><span class="line"></span><br><span class="line">                writel(virt_to_phys(secondary_startup), sram_base_addr + <span class="number">8</span>);</span><br><span class="line">                writel(<span class="number">0xDEADBEAF</span>, sram_base_addr + <span class="number">4</span>);</span><br><span class="line">                dsb_sev();</span><br><span class="line">        &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="修改-baremetal-code"><a href="#修改-baremetal-code" class="headerlink" title="修改 baremetal code"></a>修改 baremetal code</h2><p>然後我們修改一下 code</p>
+<h3 id="修改位址與-makefile"><a href="#修改位址與-makefile" class="headerlink" title="修改位址與 makefile"></a>修改位址與 makefile</h3><p>首先，我們使用的是 Firefly-RK3288 ，提供了 2G DDR 的空間，也就是 <code>0x00000000 - 0x80000000</code></p>
+<p>為了防止 kernel remap 我們無法預知的位址，因此我們在 uboot 中加入了 <code>mem=960m</code> 表示我們只提供 960M 的 memory 空間給 kernel 使用<br>也就是 <code>0x00000000 - 0x3c0000000</code> 使 kernel 可能會用到的位址<br>因此我們也將 entry point 修改成 0x40000000 避免 kernel 使用，但是我們還是可以透過 devmem 來寫入</p>
+<p>備註：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">以上是在 firefly RK3288 的公版上進行設置的，之後 HW 所提供的 DDR size 可能只有 1G</span><br><span class="line">也就是從到 0x40000000 而已，如果使用以上設定會造成資料無法存取的狀況，因此之後要運行 application 的話</span><br><span class="line">應該是要將存取位址設置成 0x3c000000</span><br></pre></td></tr></table></figure></p>
+<h3 id="loadmetal-加入-RK3288-支援"><a href="#loadmetal-加入-RK3288-支援" class="headerlink" title="loadmetal 加入 RK3288 支援"></a>loadmetal 加入 RK3288 支援</h3><p>沒有改什麼大部分的內容，但因為要使用 hardfloat compiler 才可以在 rootfs 使用，因此我們就照此辦理</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">source</span> /usr/<span class="built_in">local</span>/weintek-i686/environment-setup-armv7ahf-vfp-neon-weintek-linux-gnueabi</span><br><span class="line">arm-weintek-linux-gnueabi-gcc -march=armv7<span class="_">-a</span> -mfloat-abi=hard -mfpu=neon --sysroot=<span class="variable">$SDKTARGETSYSROOT</span> -o loadmetal main.c</span><br></pre></td></tr></table></figure>
+<p>這樣就可以 build 出可使用的 loadmetal binary<br>若要使用，請將 <code>#define LOAD_RK3288</code> 打開</p>
+<h2 id="Source-code-of-loadmetal"><a href="#Source-code-of-loadmetal" class="headerlink" title="Source code of loadmetal"></a>Source code of loadmetal</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdlib.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;fcntl.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;sys/mman.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> LOAD_RK3288</span></span><br><span class="line"></span><br><span class="line"><span class="meta">#<span class="meta-keyword">ifdef</span> LOAD_RK3288</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MEMADDR 0x3c000000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">else</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> MEMADDR 0x10000000</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">endif</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span> <span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span> * argv [])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (argc != <span class="number">2</span>) &#123;</span><br><span class="line">                <span class="built_in">printf</span>(<span class="string">"Usage: %s xxx.elf(xxx.bin)\n"</span>, argv[<span class="number">0</span>]);</span><br><span class="line">                <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">char</span> *filename = argv[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Open file %s\n"</span>, filename);</span><br><span class="line"></span><br><span class="line">        FILE *file = fopen(argv[<span class="number">1</span>],<span class="string">"rb"</span>);</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Get file length */</span></span><br><span class="line">        fseek(file, <span class="number">0</span>, SEEK_END);</span><br><span class="line">        <span class="keyword">unsigned</span> <span class="keyword">long</span> filelen = ftell(file);</span><br><span class="line">        fseek(file, <span class="number">0</span>, SEEK_SET);</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"File lenght %d\n"</span>, filelen);</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Map Physical address of RAM to virtual address segment with Read/Write Access */</span></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Open memory %x to read data\n"</span>, MEMADDR);</span><br><span class="line">        <span class="keyword">int</span> fd = open(<span class="string">"/dev/mem"</span>, O_RDWR);</span><br><span class="line">        <span class="keyword">void</span> *address = mmap(<span class="literal">NULL</span>, filelen,PROT_READ|PROT_WRITE, MAP_SHARED, fd, MEMADDR);</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Read file contents */</span></span><br><span class="line">        fread(address, filelen, <span class="number">1</span>, file);</span><br><span class="line">        fclose(file);</span><br><span class="line"></span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"Read file %s with length 0x%x to memory address 0x%x done!!\n"</span>, filename, filelen ,MEMADDR);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="問題：open-“-dev-mem”-會失敗-permission-denied"><a href="#問題：open-“-dev-mem”-會失敗-permission-denied" class="headerlink" title="問題：open(“/dev/mem”) 會失敗: permission denied"></a>問題：open(“/dev/mem”) 會失敗: permission denied</h1><p>原因是因為 <code>CONFIG_STRICT_DEVMEM</code> 被開啟，結果 user space 就只能access reserver memory 和kernel 使用的 system Ram 兩種<br>所以透過 <code>menu -&gt; Kernel Hacking</code> 把 config 關閉後就可以了</p>
+<p>這邊忘記針對 GPIO8 clock 進行設定，設定如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">bootmain</span><span class="params">(<span class="keyword">void</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">        <span class="comment">/* This application for Firefly RK3288 LED toggle example */</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Setting LEDs</span></span><br><span class="line"><span class="comment">         *  WORK_LED : GPIO8_A1</span></span><br><span class="line"><span class="comment">         * POWER_LED : GPIO8_A2</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">/* set GRF_GPIO8A_IOMUX (default: gpio) */</span></span><br><span class="line">        rk_clrreg(GRF_GPIO8A_IOMUX, (BIT(<span class="number">3</span>) | BIT(<span class="number">2</span>)));</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* set pull-up GPIO8_A (defult: pull-up)</span></span><br><span class="line"><span class="comment">         * GPIO8_A1(bit3, bit2) = (0, 1)</span></span><br><span class="line"><span class="comment">         * GPIO8_A2(bit5, bit4) = (0, 1)</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        rk_clrsetreg(GRF_GPIO8A_P, (BIT(<span class="number">3</span>)), (BIT(<span class="number">2</span>)));</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* set GPIO8 clock */</span></span><br><span class="line">        rk_clrreg(CRU_CLKGATE14_CON, BIT(<span class="number">8</span>));</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* set GPIO8_A1 direction (default: input), 0:input, 1:output */</span></span><br><span class="line">        rk_setreg(GPIO8_DIRECTION, (BIT(<span class="number">1</span>)));</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* set GPIO8_A1 data (default: 0x00000000)</span></span><br><span class="line"><span class="comment">         * Accroding to pull-up pin :</span></span><br><span class="line"><span class="comment">         *                            0: on</span></span><br><span class="line"><span class="comment">         *                            1: off</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="補充：透過-uboot-boot-command-maxcpus-3-進行測試"><a href="#補充：透過-uboot-boot-command-maxcpus-3-進行測試" class="headerlink" title="補充：透過 uboot boot command maxcpus=3 進行測試"></a>補充：透過 uboot boot command <code>maxcpus=3</code> 進行測試</h1><p>我們修改 <code>include/config_distro_bootcmd.h</code></p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/include/config_distro_bootcmd.h b/include/config_distro_bootcmd.h</span><br><span class="line">index c0dcb4e..c09ddad 100644</span><br><span class="line"><span class="comment">--- a/include/config_distro_bootcmd.h</span></span><br><span class="line"><span class="comment">+++ b/include/config_distro_bootcmd.h</span></span><br><span class="line"><span class="meta">@@ -70,7 +70,7 @@</span></span><br><span class="line"></span><br><span class="line"> #define BOOTENV_SHARED_SD \</span><br><span class="line">        "sd_boot= "     \</span><br><span class="line"><span class="deletion">-       "env set bootargs \"earlyprintk console=ttyS2,115200n8 loglevel=7 root=/dev/mmcblk0p2 rw rootfstype=ext4 rootwait\"; "  \</span></span><br><span class="line"><span class="addition">+       "env set bootargs \"earlyprintk console=ttyS2,115200n8 loglevel=7 root=/dev/mmcblk0p2 rw rootfstype=ext4 rootwait mem=960m maxcpus=3\"; "       \</span></span><br></pre></td></tr></table></figure>
+<p>之後進系統先查看 cpu 狀態<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">cat /proc/cpuinfo</span><br><span class="line"></span><br><span class="line">....省略</span><br><span class="line"></span><br><span class="line">processor    : 2</span><br><span class="line">model name    : ARMv7 Processor rev 1 (v7l)</span><br><span class="line">BogoMIPS    : 12.09</span><br><span class="line">Features    : half thumb fastmult vfp edsp thumbee neon vfpv3 tls vfpv4 idiva idivt vfpd32 lpae evtstrm </span><br><span class="line">CPU implementer    : 0x41</span><br><span class="line">CPU architecture: 7</span><br><span class="line">CPU variant    : 0x0</span><br><span class="line">CPU part    : 0xc0d</span><br><span class="line">CPU revision    : 1</span><br><span class="line"></span><br><span class="line">Hardware    : Rockchip (Device Tree)</span><br><span class="line">Revision    : 0000</span><br><span class="line">Serial        : 0000000000000000</span><br></pre></td></tr></table></figure></p>
+<p>可以看到 kernel 只啟動到 cpu 2<br>之後執行 <code>loadmetal</code> + <code>insmod</code></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Firefly/" rel="tag"># Firefly</a>
+          
+            <a href="/tags/RK3288/" rel="tag"># RK3288</a>
+          
+            <a href="/tags/OpenAMP/" rel="tag"># OpenAMP</a>
+          
+            <a href="/tags/Rockchip/" rel="tag"># Rockchip</a>
+          
+            <a href="/tags/Coretex-A17/" rel="tag"># Coretex-A17</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/03/19/baremetal-app-for-RK3288-uboot/" rel="next" title="[RK3288] 在 Firefly-RK3288 dev board 實作 bare-metal application: 閃爍 LED">
+                <i class="fa fa-chevron-left"></i> [RK3288] 在 Firefly-RK3288 dev board 實作 bare-metal application: 閃爍 LED
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/05/05/fix-stuck-on-bootlogo-ubuntu1604/" rel="prev" title="修正 Ubuntu 16.04 卡在 boot logo 的問題">
+                修正 Ubuntu 16.04 卡在 boot logo 的問題 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目錄
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            本站概覽
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope="" itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Timmy Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives">
+              
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">文章</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">35</span>
+                  <span class="site-state-item-name">標籤</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/m033010041" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="mailto:timmy_post@hotmail.com" target="_blank" title="E-Mail">
+                      
+                        <i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="www.linkedin.com/in/Gugeegee" target="_blank" title="Linkedin">
+                      
+                        <i class="fa fa-fw fa-linkedin"></i>Linkedin</a>
+                  </span>
+                
+                  <span class="links-of-author-item">
+                    <a href="https://www.facebook.com/profile.php?id=100001387579922" target="_blank" title="Facebook">
+                      
+                        <i class="fa fa-fw fa-facebook"></i>Facebook</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#實驗步驟"><span class="nav-number">2.</span> <span class="nav-text">實驗步驟</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#修改-baremetal-code"><span class="nav-number">2.1.</span> <span class="nav-text">修改 baremetal code</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#修改位址與-makefile"><span class="nav-number">2.1.1.</span> <span class="nav-text">修改位址與 makefile</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#loadmetal-加入-RK3288-支援"><span class="nav-number">2.1.2.</span> <span class="nav-text">loadmetal 加入 RK3288 支援</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Source-code-of-loadmetal"><span class="nav-number">2.2.</span> <span class="nav-text">Source code of loadmetal</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#問題：open-“-dev-mem”-會失敗-permission-denied"><span class="nav-number">3.</span> <span class="nav-text">問題：open(“/dev/mem”) 會失敗: permission denied</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#補充：透過-uboot-boot-command-maxcpus-3-進行測試"><span class="nav-number">4.</span> <span class="nav-text">補充：透過 uboot boot command maxcpus=3 進行測試</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Timmy Liu</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 強力驅動</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主題 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
